@@ -1,4 +1,5 @@
 ﻿using LiteNetLib;
+using WeNeedMoreNoels.Networking;
 using LiteNetLib.Utils;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -17,11 +18,13 @@ namespace WeNeedMoreNoels.CSNetworking
         {
             EventBasedNetListener listener = new();
             host = new(listener);
+            NetTuning.Apply(host);
             listener.ConnectionRequestEvent += Listener_ConnectionRequestEvent;
             listener.PeerConnectedEvent += Listener_PeerConnectedEvent;
             listener.NetworkReceiveEvent += Listener_NetworkReceiveEvent;
             EventBasedNetListener transferListener = new();
             transferHost = new(transferListener);
+            NetTuning.Apply(transferHost);
             transferListener.ConnectionRequestEvent += TransferListener_ConnectionRequestEvent;
             transferListener.PeerConnectedEvent += TransferListener_PeerConnectedEvent;
             WNMNTools.LocalID = 0;
@@ -87,9 +90,10 @@ namespace WeNeedMoreNoels.CSNetworking
         {
             Plugin.Logger.LogInfo($"WNMNTransfer host got connection: {peer.EndPoint}");
             NetDataWriter writer = new();
-            writer.Put(DB.SyncSaveContentBuffer);
+            byte[] packed = SaveTransfer.Pack(DB.SyncSaveContentBuffer);
+            writer.Put(packed);
             peer.Send(writer, DeliveryMethod.ReliableOrdered);
-            Plugin.Logger.LogInfo("WNMNTransfer host transfered map data");
+            Plugin.Logger.LogInfo($"WNMNTransfer host transfered map data ({DB.SyncSaveContentBuffer.Length} -> {packed.Length} bytes)");
         }
 
         private void Listener_PeerConnectedEvent(NetPeer peer)

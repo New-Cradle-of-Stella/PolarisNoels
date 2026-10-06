@@ -1,4 +1,5 @@
 ﻿using LiteNetLib;
+using WeNeedMoreNoels.Networking;
 using nel;
 using nel.title;
 using System.Collections;
@@ -234,6 +235,12 @@ namespace WeNeedMoreNoels
                         b.SetLocked(true);
                         EventBasedNetListener listener = new();
                         client = new(listener);
+                        NetTuning.Apply(client);
+                        Connected = false;
+                        transferConnectedAt = -1f;
+                        transferDropped = false;
+                        listener.PeerConnectedEvent += _ => transferConnectedAt = Time.time;
+                        listener.PeerDisconnectedEvent += (_, _) => transferDropped = !Connected;
                         listener.NetworkReceiveEvent += (peer, reader, deliveryMethod) =>
                         {
                             BxCmd?.deactivate();
@@ -251,7 +258,7 @@ namespace WeNeedMoreNoels
                             Plugin.Logger.LogInfo("Client received sync save data.");
                             byte[] receivedData = new byte[reader.UserDataSize];
                             reader.GetBytes(receivedData, reader.UserDataSize);
-                            File.WriteAllBytes(SVD.getDir() + "\\" + DB.SYNC_FILE_NAME, receivedData);
+                            File.WriteAllBytes(SVD.getDir() + "\\" + DB.SYNC_FILE_NAME, SaveTransfer.Unpack(receivedData));
                             SVD.sFile file = new(-2, true);//-2为同步存档
                             BxCC.deactivate();
                             BxCC = null;
@@ -267,7 +274,7 @@ namespace WeNeedMoreNoels
                         };
                         client.Start();
                         client.Connect(IpInput.text, PortCon.cnt_val + 1, DB.TRANSFER_ACCESS_KEY);
-                        Plugin.PluginInstance.StartCoroutine(CheckTimeout(5, client));
+                        Plugin.PluginInstance.StartCoroutine(CheckTimeout(client));
                         Plugin.Logger.LogInfo($"Starting connect {IpInput.text}:{PortCon.cnt_val}");
                         return true;
                     }, b =>
@@ -288,12 +295,28 @@ namespace WeNeedMoreNoels
             }
         }
 
-        static IEnumerator CheckTimeout(float t, NetManager client)
+        /// <summary>建立连接阶段的超时。</summary>
+        const float ConnectTimeout = 10f;
+
+        /// <summary>已连上主机后，等待存档传完的超时。存档较大 + 高延迟时传输会很慢，所以给得很宽松。</summary>
+        const float TransferTimeout = 90f;
+
+        static float transferConnectedAt = -1f;
+
+        static bool transferDropped;
+
+        static IEnumerator CheckTimeout(NetManager client)
         {
-            float curt = Time.time;
-            while (Time.time - curt < t)
+            float startedAt = Time.time;
+            while (!Connected && !transferDropped)
             {
-                yield return 0;
+                bool linked = transferConnectedAt >= 0f;
+                float elapsed = Time.time - (linked ? transferConnectedAt : startedAt);
+                if (elapsed > (linked ? TransferTimeout : ConnectTimeout))
+                {
+                    break;
+                }
+                yield return null;
             }
             if (!Connected)
             {

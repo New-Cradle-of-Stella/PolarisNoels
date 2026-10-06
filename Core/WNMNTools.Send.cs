@@ -1,4 +1,5 @@
 ﻿using LiteNetLib;
+using UnityEngine;
 using m2d;
 using nel;
 using PixelLiner.PixelLinerLib;
@@ -251,8 +252,24 @@ namespace WeNeedMoreNoels
             Plugin.Logger.LogInfo($"Transfered sync smncFile to peer:{id}");
         }
 
+        static bool? lastSentPvp;
+        static EnemySyncType? lastSentSyncType;
+        static float nextRoomHeartbeat;
+
+        /// <summary>
+        /// 主机广播房间配置。配置变化时立即发送，否则每 2 秒心跳一次。
+        /// 之前每帧都可靠发送，高延迟下会把可靠通道的发送窗口塞满。
+        /// </summary>
         public static void UpdateRoomConfigToAllPeers()
         {
+            bool changed = lastSentPvp != EnablePVP || lastSentSyncType != SyncType;
+            if (!changed && Time.time < nextRoomHeartbeat)
+            {
+                return;
+            }
+            lastSentPvp = EnablePVP;
+            lastSentSyncType = SyncType;
+            nextRoomHeartbeat = Time.time + 2f;
             WNMNPeerMessage messageSend = new()
             {
                 Type = WNMNPeerMessageType.NotifyRoomUpdate,

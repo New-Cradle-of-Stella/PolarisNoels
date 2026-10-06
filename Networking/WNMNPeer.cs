@@ -15,6 +15,7 @@ namespace WeNeedMoreNoels.Networking
         {
             EventBasedNetListener listener = new();
             localPeer = new(listener);
+            NetTuning.Apply(localPeer);
             listener.ConnectionRequestEvent += Listener_ConnectionRequestEvent;
             listener.PeerConnectedEvent += Listener_PeerConnectedEvent;
             listener.NetworkReceiveEvent += Listener_NetworkReceiveEvent;

@@ -1,4 +1,5 @@
 ﻿using LiteNetLib;
+using WeNeedMoreNoels.Networking;
 using LiteNetLib.Utils;
 using nel;
 using Newtonsoft.Json;
@@ -20,6 +21,7 @@ namespace WeNeedMoreNoels.CSNetworking
         {
             EventBasedNetListener listener = new();
             client = new(listener);
+            NetTuning.Apply(client);
             listener.PeerConnectedEvent += Listener_PeerConnectedEvent;
             listener.NetworkReceiveEvent += Listener_NetworkReceiveEvent;
             listener.PeerDisconnectedEvent += Listener_PeerDisconnectedEvent;
