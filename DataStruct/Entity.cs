@@ -1,4 +1,4 @@
-using ProtoBuf;
+﻿using ProtoBuf;
 
 namespace PolarisNoels.DataStruct
 {
@@ -57,6 +57,9 @@ namespace PolarisNoels.DataStruct
         /// <summary>玩家的昵称、外观、队伍（Kind 为 Noel 时使用）</summary>
         [ProtoMember(3)]
         public IniConfig Noel;
+        /// <summary>Boss/附属结构由原版创建为本地表现对象，再绑定发起者分配的实体 ID。</summary>
+        [ProtoMember(4)]
+        public bool NativeReplica;
     }
 
     /// <summary>状态快照。每个模块只填写自己负责的那一段，其余为 null。</summary>

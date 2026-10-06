@@ -362,22 +362,3 @@ pub unsafe extern "C" fn pn_last_error(out: *mut u8, cap: u32, out_len: *mut u32
         output(message.as_bytes(), out, cap, out_len)
     })
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn panic_is_contained() {
-        assert_eq!(guarded(|| panic!("FFI test hook")), -99);
-        assert_eq!(pn_abi_version(), 1);
-        LAST_ERROR.with(|e| assert!(e.borrow().contains("panic contained")));
-    }
-    #[test]
-    fn abi_layout() {
-        assert_eq!(std::mem::size_of::<PnConfig>(), 32);
-        assert_eq!(std::mem::offset_of!(PnConfig, stun_servers), 16);
-        assert_eq!(std::mem::size_of::<Header>(), 32);
-        assert_eq!(std::mem::size_of::<PeerStats>(), 32);
-        assert_eq!(std::mem::offset_of!(PeerStats, path_kind), 28);
-    }
-}

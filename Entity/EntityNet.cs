@@ -148,6 +148,9 @@ namespace PolarisNoels
             {
                 return;
             }
+            // 状态/生成/销毁只能由实体所有者发出；伤害请求允许其他玩家发送。
+            bool damageRequest = m.Type == EntityMsgType.Event && m.Event?.Type == EntityEventType.Damage;
+            if (!damageRequest && EntityIds.Owner(m.EntityId) != message.PeerId) return;
             switch (m.Type)
             {
                 case EntityMsgType.Spawn:
@@ -163,6 +166,7 @@ namespace PolarisNoels
                     }
                     break;
                 case EntityMsgType.Despawn:
+                    EntityFactory.ForgetPendingSpawn(m.EntityId);
                     if (EntityRegistry.TryGet(m.EntityId, out NetEntity gone) && gone.Role == EntityRole.Replica && gone.Kind != EntityKind.Noel)
                     {
                         EntityFactory.DestroyEnemyReplica(gone);

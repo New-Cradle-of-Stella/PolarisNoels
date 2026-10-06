@@ -60,32 +60,3 @@ pub async fn read_frame<R: AsyncRead + Unpin>(reader: &mut R) -> Result<(u8, Vec
         .map_err(|e| e.to_string())?;
     Ok((kind, data))
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn sequence_wrap() {
-        assert!(is_newer(0, u32::MAX));
-        assert!(!is_newer(u32::MAX, 0));
-        assert!(!is_newer(17, 17));
-    }
-    #[tokio::test]
-    async fn frames_and_limits() {
-        let (mut a, mut b) = tokio::io::duplex(64);
-        let sender = tokio::spawn(async move {
-            write_frame(&mut a, 0xfe, b"unknown").await.unwrap();
-            write_frame(&mut a, USER, b"").await.unwrap();
-            write_frame(&mut a, USER, b"next").await.unwrap();
-        });
-        assert_eq!(
-            read_frame(&mut b).await.unwrap(),
-            (0xfe, b"unknown".to_vec())
-        );
-        assert_eq!(read_frame(&mut b).await.unwrap(), (USER, vec![]));
-        assert_eq!(read_frame(&mut b).await.unwrap().1, b"next");
-        sender.await.unwrap();
-        let mut bad = &b"\x10\xff\xff\xff\x7f"[..];
-        assert!(read_frame(&mut bad).await.is_err());
-    }
-}

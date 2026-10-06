@@ -3,8 +3,8 @@
 namespace PolarisNoels.Networking
 {
     /// <summary>
-    /// 事件分发的异常隔离（方案 §8.2）：逐个订阅者 try/catch，一个回调抛异常不能中断
-    /// 同一事件里的其它订阅者，也不能中断后续事件。此类型不依赖 Unity/游戏程序集，NetSmoke 直接测试。
+    /// 事件分发的异常隔离：逐个订阅者 try/catch，一个回调抛异常不能中断
+    /// 同一事件里的其它订阅者，也不能中断后续事件。
     /// </summary>
     public static class SafeEvents
     {

@@ -210,14 +210,11 @@ namespace PolarisNoels.SN
         {
             if (M2LpSummon.NearLpSmn is not null && M2LpSummon.NearLpSmn.key == key)
             {
-                PolarisNoelsTools.BattleStarterID = starterID;
-                DB.CurSummoner = M2LpSummon.NearLpSmn;
-                DB.CurEnemies.Clear();
-                M2LpSummon.NearLpSmn.openSummoner(DB.MainPR);
+                BattleSession.OpenRemote(starterID, () => M2LpSummon.NearLpSmn.openSummoner(DB.MainPR));
             }
             else
             {
-                DB.StartedBattleSummonerKeys.Add(key);
+                BattleSession.RememberRemoteBattle(starterID, key);
             }
         }
 
@@ -229,28 +226,7 @@ namespace PolarisNoels.SN
                 stg.x = x;
                 stg.y = y;
                 PolarisNoelsTools.CurSimFile.Astgo[0] = stg;
-                PolarisNoelsTools.BattleStarterID = starterID;
-                DB.CurEnemies.Clear();
-                PolarisNoelsTools.OpenSmncBattle();
-            }
-        }
-
-        public static void EndCurMapBattle()
-        {
-            if (DB.CurSummoner is not null)
-            {
-                foreach (NelEnemy enemy in DB.CurEnemies)
-                {
-                    if (enemy == null)
-                    {
-                        continue;
-                    }
-                    DB.MainPR.Mp.removeMover(enemy);
-                    enemy.destruct();
-                }
-                DB.CurEnemies.Clear();
-                DB.CurSummoner.closeSummoner(true, out _);
-                DB.CurSummoner = null;
+                BattleSession.OpenRemote(starterID, PolarisNoelsTools.OpenSmncBattle);
             }
         }
 

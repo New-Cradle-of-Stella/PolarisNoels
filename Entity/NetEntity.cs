@@ -70,6 +70,14 @@ namespace PolarisNoels
             return null;
         }
 
+        public void BindReplicaId(int id)
+        {
+            if (Role != EntityRole.Replica || registered || id < 0) return;
+            Id = id;
+            OwnerPeer = EntityIds.Owner(id);
+            Register();
+        }
+
         void Register()
         {
             if (!registered && Id >= 0)

@@ -67,7 +67,7 @@ namespace PolarisNoels
             Broadcast(messageSend);
         }
 
-        public static void SendBattleEndToAllPeers(string key, int id)
+        public static void SendBattleEndToAllPeers(string key, int id, bool defeated = true)
         {
             if (DB.InitConfig is null)
             {
@@ -79,7 +79,8 @@ namespace PolarisNoels
                 PeerId = id,
                 Battle = new()
                 {
-                    key = key
+                    key = key,
+                    Aborted = !defeated
                 }
             };
             Broadcast(messageSend, mapOnly: true);

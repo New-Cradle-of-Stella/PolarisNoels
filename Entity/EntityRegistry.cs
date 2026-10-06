@@ -45,6 +45,22 @@ namespace PolarisNoels
             }
         }
 
+        /// <summary>掉线强杀与普通的异图销毁分开：强杀只清该玩家的怪，绝不算整场胜利。</summary>
+        public static void KillEnemiesOwnedBy(int ownerPeer)
+        {
+            foreach (var entity in entities.Values.Where(e => e != null && e.Kind != EntityKind.Noel && e.OwnerPeer == ownerPeer).ToList())
+            {
+                var enemy = entity.GetComponent<nel.NelEnemy>();
+                if (enemy != null)
+                {
+                    enemy.hp = 0;
+                    BattleSession.ObserveEnemy(enemy);
+                }
+                EntityFactory.DestroyEnemyReplica(entity);
+            }
+            EntityFactory.KillNativeReplicasOwnedBy(ownerPeer);
+        }
+
         /// <summary>战斗结束：忘掉所有敌人实体（不销毁对象本身）。</summary>
         public static void ForgetEnemies()
         {

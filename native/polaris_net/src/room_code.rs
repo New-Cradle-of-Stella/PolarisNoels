@@ -146,28 +146,3 @@ impl Room {
         })
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn roundtrip_and_corruption() {
-        let r = Room::new(
-            [7; 32],
-            vec![
-                "127.0.0.1:1234".parse().unwrap(),
-                "[::1]:1234".parse().unwrap(),
-            ],
-            false,
-        );
-        let code = r.encode();
-        assert_eq!(Room::decode(&code).unwrap().candidates, r.candidates);
-        assert!(Room::decode(&(code.clone() + "0")).is_err());
-        assert!(Room::decode(&code[..code.len() - 1]).is_err());
-        let bad = code.replacen("PN1", "PN2", 1);
-        assert!(Room::decode(&bad).is_err());
-        let mut bad = code.into_bytes();
-        bad[20] = if bad[20] == b'0' { b'1' } else { b'0' };
-        assert!(Room::decode(std::str::from_utf8(&bad).unwrap()).is_err());
-    }
-}

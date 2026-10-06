@@ -13,7 +13,8 @@ namespace PolarisNoels.Networking.ReceiveEvent
 
         public override void ReceiveMessage(PolarisNoelsPeerMessage message)
         {
-            ShadowNoelExtensions.EndCurMapBattle();
+            if (message.Battle != null)
+                BattleSession.ReceiveEnd(message.PeerId, message.Battle.key, message.Battle.Aborted);
         }
 
         public override string ToMessageString(PolarisNoelsPeerMessage message)

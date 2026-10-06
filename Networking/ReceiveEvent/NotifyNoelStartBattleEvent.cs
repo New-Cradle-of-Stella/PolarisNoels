@@ -13,6 +13,7 @@ namespace PolarisNoels.Networking.ReceiveEvent
 
         public override void ReceiveMessage(PolarisNoelsPeerMessage message)
         {
+            if (message.Battle == null || DB.IsInBattle) return;
             if (message.Battle.isSim)
             {
                 int x, y;

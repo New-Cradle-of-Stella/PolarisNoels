@@ -225,6 +225,9 @@ namespace PolarisNoels.DataStruct
         public bool isSim;
         [ProtoMember(3)]
         public Dictionary<int, Vector2Int> SpawnPoints;
+        /// <summary>中断只恢复召唤器状态，不能记为胜利。旧结束消息默认仍表示胜利。</summary>
+        [ProtoMember(4)]
+        public bool Aborted;
     }
 
     [ProtoContract]

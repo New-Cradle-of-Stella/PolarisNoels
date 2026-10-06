@@ -20,17 +20,6 @@ pub struct Node {
 }
 impl Node {
     pub fn new(config: Config) -> Result<Self, String> {
-        Self::with_socket(config, |udp| {
-            quinn::TokioRuntime
-                .wrap_udp_socket(udp)
-                .map_err(|e| e.to_string())
-        })
-    }
-    /// Socket injection supports deterministic NAT/link acceptance tests.
-    pub fn with_socket(
-        config: Config,
-        make_socket: impl FnOnce(UdpSocket) -> Result<Arc<dyn quinn::AsyncUdpSocket>, String>,
-    ) -> Result<Self, String> {
         if !(2..=8).contains(&config.max_peers) || config.idle_timeout_ms < 1000 {
             return Err("invalid network configuration".into());
         }
@@ -45,7 +34,9 @@ impl Node {
             let local_id = Arc::new(AtomicI32::new(-1));
             let udp = bind_socket(config.bind_port).map_err(|e| e.to_string())?;
             udp.set_nonblocking(true).map_err(|e| e.to_string())?;
-            let inner = make_socket(udp)?;
+            let inner = quinn::TokioRuntime
+                .wrap_udp_socket(udp)
+                .map_err(|e| e.to_string())?;
             let socket = Arc::new(PunchSocket::new(inner, local_id.clone()));
             let endpoint = quinn::Endpoint::new_with_abstract_socket(
                 quinn::EndpointConfig::default(),

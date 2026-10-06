@@ -112,7 +112,7 @@ namespace PolarisNoels.Networking
             }
             PolarisNoelsTools.UpdateAllNoels();
             PolarisNoelsTools.SetAllNickNameBgs();
-            PolarisNoelsTools.CheckEnemyEmptyAndEndBattle();
+            BattleSession.Update();
         }
 
         void RefreshDelays()
@@ -145,6 +145,8 @@ namespace PolarisNoels.Networking
                 Plugin.Logger.LogWarning($"bad peer message dropped: {e.Message}");
                 return;
             }
+            // 业务里的自报 ID 必须绑定 QUIC 给出的真实来源；结束通知只信战斗发起者。
+            if (message.PeerId != peerId) return;
             if (message.Type == PolarisNoelsPeerMessageType.UpdatePeerInfo && message.UpdatePeerInfo?.Type == UpdatePeerType.Map)
             {
                 bool changedMap = maps.SetPeerMap(message.PeerId, message.UpdatePeerInfo.MapKey);

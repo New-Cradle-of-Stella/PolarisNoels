@@ -6,7 +6,7 @@ using PolarisNoels.Networking.Native;
 namespace PolarisNoels.Networking
 {
     /// <summary>
-    /// INetTransport 的原生实现（P/Invoke + 轮询）。此类型不依赖 Unity/游戏程序集，NetSmoke 直接链接源文件使用。
+    /// INetTransport 的原生实现（P/Invoke + 轮询）。
     /// 所有 pn_* 调用都发生在调用方线程（游戏内 = Unity 主线程），原生库内部自己保证线程安全。
     /// </summary>
     public sealed class NativeTransport : INetTransport

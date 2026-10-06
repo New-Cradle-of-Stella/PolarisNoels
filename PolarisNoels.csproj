@@ -47,13 +47,6 @@
     </None>
   </ItemGroup>
 
-  <!-- tools/ 下是独立测试工程（NetSmoke），不能编进插件本体 -->
-  <ItemGroup>
-    <Compile Remove="tools\**" />
-    <None Remove="tools\**" />
-    <EmbeddedResource Remove="tools\**" />
-  </ItemGroup>
-
   <!--
     原生传输 DLL（Rust）：native/polaris_net/target/release/polaris_net.dll。
     缺失时给出可诊断的构建告警（插件本体照常编译，运行时联机功能自动禁用）；

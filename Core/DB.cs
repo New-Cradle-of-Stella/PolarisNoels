@@ -77,6 +77,7 @@ namespace PolarisNoels
 
         public static void CleanUp()
         {
+            BattleSession.ResetAll();
             noelIns.Clear();
             partyInfos.Clear();
             peerConfigs.Clear();

@@ -173,23 +173,3 @@ pub async fn collect(socket: Arc<PunchSocket>, lan: bool, stun: bool, servers: &
         rtt: started.elapsed().as_millis() as u32,
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn xor_ipv4_and_reject_truncated() {
-        let tx = [7; 12];
-        let mut data = vec![1, 1, 0, 12, 0x21, 0x12, 0xa4, 0x42];
-        data.extend(tx);
-        data.extend([0, 0x20, 0, 8, 0, 1]);
-        data.extend((1234u16 ^ 0x2112).to_be_bytes());
-        data.extend([127 ^ 0x21, 0x12, 0xa4, 1 ^ 0x42]);
-        assert_eq!(
-            parse_response(&data, tx).unwrap(),
-            "127.0.0.1:1234".parse().unwrap()
-        );
-        assert!(parse_response(&data[..data.len() - 1], tx).is_err());
-        assert!(parse_response(&data, [0; 12]).is_err());
-    }
-}

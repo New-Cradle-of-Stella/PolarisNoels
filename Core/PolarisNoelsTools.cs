@@ -23,7 +23,8 @@ namespace PolarisNoels
 
         public static bool ApplyingRemoteChange;
         public static bool EnablePVP;
-        public static EnemySyncType SyncType;
+        // 保留旧协议字段，但所有房间统一使用发起者管理。
+        public static EnemySyncType SyncType { get => EnemySyncType.StarterOnly; set { } }
 
         public static int BattleStarterID = -1;
         public static int TotalBattleNoelCount;
@@ -119,12 +120,12 @@ namespace PolarisNoels
 
         public static void CleanUpClient(int id)
         {
+            BattleSession.OnPeerDisconnected(id);
             ShadowNoelExtensions.DisableShadowNoel(id);
             DB.noelIns.Remove(id);
             DB.partyInfos.Remove(id);
             DB.peerConfigs.Remove(id);
             DB.peerDelays.Remove(id);
-            EntityRegistry.DestroyReplicasOwnedBy(id);
             SimBattleSyncList.Remove(id);
             SimBattleReadyList.Remove(id);
             if (USC != null)

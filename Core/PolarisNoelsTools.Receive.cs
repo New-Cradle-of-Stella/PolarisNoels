@@ -72,22 +72,10 @@ namespace PolarisNoels
             finally { ApplyingRemoteChange = false; }
         }
 
-        public static bool HasSyncEnemy()
-        {
-            return EntityRegistry.HasEnemyReplica();
-        }
-
         public static int GetBattleNoelCounts(M2LpSummon summon)
         {
             return DB.noelIns.Where(x => x.Value.Enabled).Select(x => x.Value.Noel.IsNearLpSummon(summon)).Count(x => x) + 1;
         }
 
-        public static void CheckEnemyEmptyAndEndBattle()
-        {
-            if (DB.IsInBattle && !HasSyncEnemy() && Time.time - BattleStartT > 1f)
-            {
-                ShadowNoelExtensions.EndCurMapBattle();
-            }
-        }
     }
 }

@@ -7,11 +7,11 @@ namespace PolarisNoels.Patch
     public class Patch_EnemySummoner_close
     {
         [HarmonyPrefix]
-        static bool Prefix(EnemySummoner __instance, ref EnemySummoner __result)
+        static bool Prefix(EnemySummoner __instance, bool defeated, ref EnemySummoner __result)
         {
-            if (PolarisNoelsTools.SyncType != EnemySyncType.StarterOnly && PolarisNoelsTools.HasSyncEnemy())
+            if (!BattleSession.CanClose(__instance, defeated))
             {
-                __result = __instance;
+                __result = null;
                 return false;
             }
             return true;

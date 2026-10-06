@@ -430,33 +430,14 @@ namespace PolarisNoels
                                 return true;
                             }
                         });
-                        if (!DB.IsInBattle)
+                        BxCmd.Br();
+                        BxCmd.addP(new()
                         {
-                            BxCmd.Br();
-                            BxCmd.addP(new()
-                            {
-                                TxCol = ColorDefault,
-                                size = 20f,
-                                alignx = ALIGN.LEFT,
-                                text = TX.Get("multiplayer_enemy_title"),
-                            });
-                            BxCmd.addSliderCT(new()
-                            {
-                                name = "EnemyMode",
-                                skin_title = "",
-                                title = TX.Get("multiplayer_enemy_title"),
-                                mn = 0,
-                                mx = 2,
-                                def = (int)PolarisNoelsTools.SyncType,
-                                checkbox_mode = 2,
-                                Adesc_keys = TX.GetArray("multiplayer_enemy_starter", "multiplayer_enemy_smart", "multiplayer_enemy_independent"),
-                                fnChanged = (_, _, i) =>
-                                {
-                                    PolarisNoelsTools.SyncType = (EnemySyncType)i;
-                                    return true;
-                                }
-                            }, 150);
-                        }
+                            TxCol = ColorDefault,
+                            size = 20f,
+                            alignx = ALIGN.LEFT,
+                            text = TX.Get("multiplayer_enemy_title") + ": " + TX.Get("multiplayer_enemy_starter"),
+                        });
                         BxCmd.Br();
                         BxCmd.addButton(new()
                         {

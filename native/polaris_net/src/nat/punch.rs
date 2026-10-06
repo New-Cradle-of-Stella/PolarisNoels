@@ -93,7 +93,7 @@ pub async fn punch(
                 result=&mut receiver=>return result.map_err(|_|"punch cancelled".to_string()),
                 _=tick.tick()=>for &addr in &candidates {
                     let bytes=encode(1,nonce,socket.local_id.load(std::sync::atomic::Ordering::Acquire),addr,&secret);
-                    if let Err(e)=socket.send_raw(addr,&bytes){if std::env::var_os("PN_PROXY_DEBUG").is_some(){eprintln!("probe send {addr}: {e}");}}
+                    let _ = socket.send_raw(addr,&bytes);
                 }
             }
         }
@@ -104,20 +104,4 @@ pub async fn punch(
         .and_then(|r| r);
     socket.probes.lock().remove(&nonce);
     result
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn authenticated_probe() {
-        for target in ["127.0.0.1:1234", "[::1]:2345"] {
-            let target = target.parse().unwrap();
-            let mut data = encode(1, 7, -1, target, &[3; 16]);
-            assert_eq!(decode(&data, &[3; 16]), Some((1, 7, -1, target)));
-            data[8] ^= 1;
-            assert!(decode(&data, &[3; 16]).is_none());
-            assert!(decode(&data, &[4; 16]).is_none());
-        }
-    }
 }

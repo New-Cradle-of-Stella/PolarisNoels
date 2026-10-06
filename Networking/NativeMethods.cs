@@ -202,7 +202,7 @@ namespace PolarisNoels.Networking.Native
             return true;
         }
 
-        /// <summary>按 fileName 在若干候选目录里查找（游戏插件目录 / 当前目录 / NetSmoke 输出目录）。</summary>
+        /// <summary>在候选目录中查找原生库。</summary>
         public static bool TryLoadFromCandidates(string[] directories, out string error)
         {
             error = null;

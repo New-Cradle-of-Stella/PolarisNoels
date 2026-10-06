@@ -32,7 +32,7 @@ namespace PolarisNoels.Networking
         RoomFull = 4
     }
 
-    /// <summary>传输层启动参数，映射到 pn_config。此类型刻意不依赖 Unity/游戏程序集，供 NetSmoke 引用。</summary>
+    /// <summary>传输层启动参数，映射到 pn_config。</summary>
     public sealed class NetTransportConfig
     {
         /// <summary>0 = 随机端口。</summary>
