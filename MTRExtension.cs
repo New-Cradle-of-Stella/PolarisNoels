@@ -152,7 +152,7 @@ namespace WeNeedMoreNoels
                 }
             }
             CaneManager.reloadScript(false);
-            return new PrPoseContainer(name, delegate (PxlFrame F, float rCLENB)
+            return new PrPoseContainer(name, "WNMNResources/pxls/", "_", delegate (PxlFrame F, float rCLENB)
             {
                 float num3;
                 float num4;

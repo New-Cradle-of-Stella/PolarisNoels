@@ -9,7 +9,7 @@ namespace WeNeedMoreNoels.Patch
         [HarmonyPostfix]
         static void Postfix(int v, CoinStorage.CTYPE ctype)
         {
-            if (!DB.IsMultiplayer)
+            if (!DB.IsMultiplayer || WNMNTools.ApplyingRemoteChange)
             {
                 return;
             }

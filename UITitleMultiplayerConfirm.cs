@@ -21,23 +21,22 @@ namespace WeNeedMoreNoels
 
         public override void drawScrollPicture(int i, float cx, float cy, float scale)
         {
-            if (i == 0)
-            {
-                this.Md.initForImg(this.Title.MIdifficulty.Tx);
-            }
+            this.Md.chooseSubMesh(1);
+            this.Md.initForImg(this.Title.MIdifficulty.Tx);
             float num = 0.5f;
             this.Md.uvRect(num * (float)i, 0f, num, 1f, false, false).RotaGraph(cx + 150, cy, scale * 0.8f, 0f, null, false);
         }
 
-        public override void fineText()
+        public override void fineText(int cursor)
         {
             FbT.text_content = TX.Get("Title_multiplayer_top", "");
-            FbB.text_content = TX.Get((diff_cursor == 0) ? "Title_multiplayer_desc_host" : "Title_multiplayer_desc_client", "");
-            FbC.text_content = TX.Get((diff_cursor == 0) ? "Title_multiplayer_host" : "Title_multiplayer_client", "");
+            FbB.text_content = TX.Get((cursor == 0) ? "Title_multiplayer_desc_host" : "Title_multiplayer_desc_client", "");
+            FbC.text_content = TX.Get((cursor == 0) ? "Title_multiplayer_host" : "Title_multiplayer_client", "");
         }
 
-        public override bool isDecided()
+        public override bool isDecided(out int _result)
         {
+            _result = result;
             if (result >= 0)
             {
                 DB.WNMNEnterNetworkType = (NetWorkType)diff_cursor;

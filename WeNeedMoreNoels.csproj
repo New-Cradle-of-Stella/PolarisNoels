@@ -1360,13 +1360,16 @@
 
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>D:\AliceInCradle Win ver029\AliceInCradle_ver029\AliceInCradle_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>D:\ZzqoQrtW_AliceInCradle Win ver030i\AliceInCradle Win ver030\AliceInCradle_ver030\AliceInCradle_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="pixelliner">
-      <HintPath>D:\AliceInCradle Win ver029\AliceInCradle_ver029\AliceInCradle_Data\Managed\pixelliner.dll</HintPath>
+      <HintPath>D:\ZzqoQrtW_AliceInCradle Win ver030i\AliceInCradle Win ver030\AliceInCradle_ver030\AliceInCradle_Data\Managed\pixelliner.dll</HintPath>
     </Reference>
     <Reference Include="unsafeAssem">
-      <HintPath>D:\AliceInCradle Win ver029\AliceInCradle_ver029\AliceInCradle_Data\Managed\unsafeAssem.dll</HintPath>
+      <HintPath>D:\ZzqoQrtW_AliceInCradle Win ver030i\AliceInCradle Win ver030\AliceInCradle_ver030\AliceInCradle_Data\Managed\unsafeAssem.dll</HintPath>
+    </Reference>
+    <Reference Include="better">
+      <HintPath>D:\ZzqoQrtW_AliceInCradle Win ver030i\AliceInCradle Win ver030\AliceInCradle_ver030\AliceInCradle_Data\Managed\better.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

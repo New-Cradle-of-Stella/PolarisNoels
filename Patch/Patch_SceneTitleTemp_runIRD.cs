@@ -99,9 +99,8 @@ namespace WeNeedMoreNoels.Patch
                 if (stt.EditSvd is not null && stt.EditSvd.ui_state == UiSVD.STATE.LOAD_SUCCESS)
                 {
                     bool ignore_svd_cfg = stt.EditSvd.ignore_svd_cfg;
-                    SVD.sFile file = SVD.GetFile(UiSVD.last_focused, true);
-                    string[] array = Directory.GetFiles(SVD.getDir(), "*.aicsave", SearchOption.TopDirectoryOnly);
-                    byte[] buffer = File.ReadAllBytes(array[UiSVD.last_focused]);
+                    SVD.sFile file = SVD.GetFileB(UiSVD.last_focused_bindex, true);
+                    byte[] buffer = File.ReadAllBytes(Path.Combine(SVD.getDir(), SVD.getFileName(file)));
                     DB.SyncSaveContentBuffer = buffer;
                     stt.EditSvd.deactivateDesigner();
                     stt.BxR.deactivate();

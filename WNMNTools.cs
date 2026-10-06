@@ -34,6 +34,7 @@ namespace WeNeedMoreNoels
 
         public static Dictionary<int, NetPeer> PeerDic = [];
 
+        public static bool ApplyingRemoteChange;
         public static bool EnablePVP;
         public static EnemySyncType SyncType;
 
@@ -727,7 +728,9 @@ namespace WeNeedMoreNoels
             NelItem item = NelItem.GetById(key);
             if (item is not null)
             {
-                DB.MainPR.NM2D.IMNG.getItem(item, count, grade);
+                ApplyingRemoteChange = true;
+                try { DB.MainPR.NM2D.IMNG.getItem(item, count, grade); }
+                finally { ApplyingRemoteChange = false; }
             }
         }
 
@@ -740,7 +743,9 @@ namespace WeNeedMoreNoels
             NelItem item = NelItem.GetById(key);
             if (item is not null)
             {
-                DB.MainPR.NM2D.IMNG.reduceItem(item, count, grade);
+                ApplyingRemoteChange = true;
+                try { DB.MainPR.NM2D.IMNG.reduceItem(item, count, grade); }
+                finally { ApplyingRemoteChange = false; }
             }
         }
 
@@ -750,7 +755,9 @@ namespace WeNeedMoreNoels
             {
                 return;
             }
-            CoinStorage.addCount(count, type);
+            ApplyingRemoteChange = true;
+            try { CoinStorage.addCount(count, type); }
+            finally { ApplyingRemoteChange = false; }
         }
 
         public static void LoseCoin(int partyID, CoinStorage.CTYPE type, int count)
@@ -759,7 +766,9 @@ namespace WeNeedMoreNoels
             {
                 return;
             }
-            CoinStorage.reduceCount(count, type);
+            ApplyingRemoteChange = true;
+            try { CoinStorage.reduceCount(count, type); }
+            finally { ApplyingRemoteChange = false; }
         }
 
         public static void NotifyFireBallTurn(MagicItem Mg, M2MagicCaster _Mv)
@@ -971,19 +980,11 @@ namespace WeNeedMoreNoels
                 {
                     COOK.autoSave(USBC.LpArea.nM2D, false, false);
                 }
-                if (USBC.BChkRestore != null && USBC.LpArea.restore_items > 0)
+                if (USBC.BChkRestore != null && USBC.LpArea.restore_items > 0 && USBC.BChkRestore.isChecked())
                 {
-                    SmncFileContainer filesVector = USBC.Con.getFilesVector();
-                    if (USBC.BChkRestore.isChecked())
-                    {
-                        filesVector.restore_items = true;
-                        GF.setB("SMNC_RESTORE_ITEMS", true);
-                    }
-                    else
-                    {
-                        filesVector.restore_items = false;
-                    }
+                    GF.setB("SMNC_RESTORE_ITEMS", true);
                 }
+                USBC.LpArea.Reader.fatal_key = (TX.noe(USBC.Con.fatal_key) || !USBC.fatal_playable) ? null : USBC.Con.fatal_key;
                 USBC.LpArea.openSummoner(num2, num);
                 DB.CurSummoner = USBC.LpArea;
                 USBC?.FD_BattleConfirm(num2, num);
