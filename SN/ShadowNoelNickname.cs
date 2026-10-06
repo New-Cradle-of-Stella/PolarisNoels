@@ -75,6 +75,38 @@ namespace WeNeedMoreNoels.SN
             base.carryable_other_object = false;
         }
 
+        /// <summary>在目标头顶创建昵称标签。</summary>
+        public static ShadowNoelNickname CreateNickname(PRMain target, string nickname)
+        {
+            ShadowNoelNickname label = Spawn(target, $"Nickname_{nickname}");
+            label.SetText(nickname);
+            label.SetTextOffset(0f, -50f);
+            return label;
+        }
+
+        /// <summary>在目标头顶创建短消息气泡（无底色，初始为空）。</summary>
+        public static ShadowNoelNickname CreateMessageBubble(PRMain target)
+        {
+            ShadowNoelNickname bubble = Spawn(target, $"Msg_{target}");
+            bubble.SetTextOffset(0f, 0f);
+            bubble.SetBgColor(new(0, 0, 0, 0));
+            return bubble;
+        }
+
+        static ShadowNoelNickname Spawn(PRMain target, string name)
+        {
+            Map2d mp = target.Mp;
+            target.getPosition(out float x, out float y);
+            ShadowNoelNickname follower = mp.createMover<ShadowNoelNickname>(name, x, y);
+            follower.SetFollowTarget(target, new Vector2(0f, -2f));
+            follower.SetTextSize(20f);
+            follower.SetTextColor(uint.MaxValue);
+            follower.SetAlpha(1);
+            mp.assignMover(follower);
+            follower.appear(mp);
+            return follower;
+        }
+
         public void SetFollowTarget(PRMain target, Vector2? offset = null)
         {
             this.followTarget = target;
@@ -89,16 +121,6 @@ namespace WeNeedMoreNoels.SN
                     target.y + followOffset.y
                 );
             }
-        }
-
-        public PRMain GetFollowTarget()
-        {
-            return this.followTarget;
-        }
-
-        public bool HasTarget()
-        {
-            return this.followTarget != null && !this.followTarget.destructed;
         }
 
         public void SetText(string text)
@@ -152,13 +174,6 @@ namespace WeNeedMoreNoels.SN
             this.Tx?.Size(size);
         }
 
-        public void SetTextAlign(ALIGN ax, ALIGNY ay)
-        {
-            this.txAlign = ax;
-            this.txAlignY = ay;
-            this.Tx?.Align(ax).AlignY(ay);
-        }
-
         public void SetTextOffset(float pixelX, float pixelY)
         {
             this.txOffsetPixelX = pixelX;
@@ -173,11 +188,6 @@ namespace WeNeedMoreNoels.SN
         public string GetCurrentText()
         {
             return this.currentText;
-        }
-
-        public bool IsTextShowing()
-        {
-            return this.GobTx != null && this.GobTx.activeSelf && this.textVisible;
         }
 
         private void EnsureTextRenderer()

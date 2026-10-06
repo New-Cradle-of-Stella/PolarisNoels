@@ -1,6 +1,5 @@
 ﻿using m2d;
 using nel;
-using System;
 using UnityEngine;
 using WeNeedMoreNoels.DataStruct;
 
@@ -12,51 +11,28 @@ namespace WeNeedMoreNoels.SN
         public int ID;
         public int PartyID;
 
-        public bool ChantMagic;
-        public float MagicAgR;
-        public float MagicT;
+        /// <summary>该玩家的全部魔法状态与操作。</summary>
+        public readonly ShadowNoelMagic Magic;
+
         public STATE CurState;
-        public int MagicHoldAim;
 
         public bool IsEvadeO;
         public bool IsAtkO;
 
         public M2Shield.STATE CurShieldState;
 
-        public Action<int, NotifyNoelDamage> OnNoelDamage;
+        public ShadowNoel()
+        {
+            Magic = new ShadowNoelMagic(this);
+        }
 
         public ShadowNoelNickname NicknameIns;
         public ShadowNoelNickname MsgIns;
 
         public void CreateNicknameWithNoel(string nickname)
         {
-            getPosition(out float x, out float y);
-            ShadowNoelNickname follower = Mp.createMover<ShadowNoelNickname>($"Nickname_{nickname}", x, y);
-            follower.SetFollowTarget(this, new Vector2(0f, -2f));
-            follower.SetText(nickname);
-            follower.SetTextSize(20f);
-            follower.SetTextColor(uint.MaxValue);
-            follower.SetTextOffset(0f, -50f);
-            follower.SetAlpha(1);
-            DB.MainPR.Mp.assignMover(follower);
-            follower.appear(DB.MainPR.Mp);
-            NicknameIns = follower;
-            CreateShortMsgWithNoel();
-        }
-
-        public void CreateShortMsgWithNoel()
-        {
-            getPosition(out float x, out float y);
-            ShadowNoelNickname follower = Mp.createMover<ShadowNoelNickname>($"Msg_{this}", x, y);
-            follower.SetFollowTarget(this, new Vector2(0f, -2f));
-            follower.SetTextSize(20f);
-            follower.SetTextColor(uint.MaxValue);
-            follower.SetTextOffset(0f, 0f);
-            follower.SetAlpha(1);
-            follower.SetBgColor(new(0, 0, 0, 0));
-            DB.MainPR.Mp.assignMover(follower);
-            follower.appear(DB.MainPR.Mp);
-            MsgIns = follower;
+            NicknameIns = ShadowNoelNickname.CreateNickname(this, nickname);
+            MsgIns = ShadowNoelNickname.CreateMessageBubble(this);
         }
 
         public override void Awake()
@@ -145,7 +121,7 @@ namespace WeNeedMoreNoels.SN
 
         public override void runPre()
         {
-            Skill.magic_t = MagicT;
+            Skill.magic_t = Magic.T;
             if (state != CurState)
             {
                 base.changeState(CurState, state);
@@ -191,30 +167,6 @@ namespace WeNeedMoreNoels.SN
             Mp.removeMover(NicknameIns);
             NicknameIns.destruct();
             DB.noelIns[ID].NicknameIns = null;
-        }
-
-        public void ReawakeMagic(MGKIND kind, float t)
-        {   
-            Skill.reawakeMagic(kind);
-            Skill.CurMg.castedTimeResetTo(t);
-        }
-
-        public void SleepMagic()
-        {
-            Skill.CurMg.Sleep(false);
-        }
-
-        public void KillMagic()
-        {
-            if (Skill.CurMg is null)
-            {
-                return;
-            }
-            Skill.CurMg.close(true);
-            Skill.CurMg.kill(-1f);
-            Skill.OcSlots.clearMagic(Skill.CurMg, false);
-            Skill.CurMg = null;
-            Skill.MagicSel.deactivate();
         }
 
         private PrAnimator AnmN;

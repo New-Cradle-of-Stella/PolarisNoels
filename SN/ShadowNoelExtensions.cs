@@ -1,116 +1,66 @@
 ﻿using m2d;
 using nel;
 using nel.mgm.smncr;
-using System.Linq;
 using UnityEngine;
 using WeNeedMoreNoels.DataStruct;
 using XX;
-using static nel.M2BarricadeTDDrawer;
 
 namespace WeNeedMoreNoels.SN
 {
     public static class ShadowNoelExtensions
     {
+        /// <summary>
+        /// 在当前地图为远程玩家生成影子角色。
+        /// 玩家记录不存在时同时创建记录；记录已存在但角色未显示（刚进入同图）时只重新生成角色。
+        /// </summary>
         public static ShadowNoel GenerateShadowNoel(ClientConfig config, int id = -1)
         {
             Plugin.Logger.LogInfo("generate");
-            Map2d map = M2DBase.Instance.curMap;
-            map.Pr.getPosition(out float x, out float y);
-            ShadowNoel noel;
-            if (DB.noelIns.ContainsKey(id))
+            bool known = DB.noelIns.TryGetValue(id, out ShadowNoelInstance ins);
+            if (known && ins.Enabled)
             {
-                if (!DB.noelIns[id].Enabled)
-                {
-                    noel = map.createMover<ShadowNoel>("ShadowNoel", x, y);
-                    noel.InitConfig = config;
-                    noel.newGame();
-                    noel.gameObject.AddComponent<Rigidbody2D>();
-                    noel.gameObject.name = "ShadowNoel";
-                    map.assignMover(noel);
-                    noel.ID = id;
-                    noel.PartyID = DB.noelIns[id].NoelInfo.PartyID;
-                    noel.OnNoelDamage = WNMNTools.SendDamageToAllPeers;
-                    if (DB.InitConfig.InvisibleNickname)
-                    {
-                        noel.CreateNicknameWithNoel(TX.Get("multiplayer_noel_nickname") + id.ToString());
-                    }
-                    else
-                    {
-                        noel.CreateNicknameWithNoel(DB.noelIns[id].NickNameStr);
-                    }
-                    DB.noelIns[id].NicknameIns = noel.NicknameIns;
-                    return noel;
-                }
                 return null;
             }
-            noel = map.createMover<ShadowNoel>("ShadowNoel", x, y);
+            Map2d map = M2DBase.Instance.curMap;
+            map.Pr.getPosition(out float x, out float y);
+            ShadowNoel noel = map.createMover<ShadowNoel>("ShadowNoel", x, y);
             noel.InitConfig = config;
             noel.newGame();
             noel.gameObject.AddComponent<Rigidbody2D>();
             noel.gameObject.name = "ShadowNoel";
             map.assignMover(noel);
             noel.ID = id;
-            noel.PartyID = DB.partyInfos[id].ID;
-            noel.OnNoelDamage = WNMNTools.SendDamageToAllPeers;
-            DB.noelIns.Add(id, new()
+            noel.PartyID = known ? ins.NoelInfo.PartyID : DB.partyInfos[id].ID;
+            EntityFactory.AttachPlayerReplica(noel, id);
+            if (!known)
             {
-                Noel = noel,
-                Nickname = config.Nickname,
-                MpKey = map.key,
-                NoelInitConfig = config,
-                NoelInfo = GetSendInfo(),
-                Enabled = true,
-                NicknameIns = noel.NicknameIns,
-                ID = id
-            });
-            if (DB.InitConfig.InvisibleNickname)
-            {
-                noel.CreateNicknameWithNoel(TX.Get("multiplayer_noel_nickname") + id.ToString());
+                ins = new ShadowNoelInstance
+                {
+                    Noel = noel,
+                    Nickname = config.Nickname,
+                    MpKey = map.key,
+                    NoelInitConfig = config,
+                    NoelInfo = GetSendInfo(),
+                    Enabled = true,
+                    ID = id
+                };
+                DB.noelIns.Add(id, ins);
             }
-            else
-            {
-                noel.CreateNicknameWithNoel(DB.noelIns[id].NickNameStr);
-            }
-            DB.noelIns[id].NicknameIns = noel.NicknameIns;
+            noel.CreateNicknameWithNoel(DB.InitConfig.InvisibleNickname
+                ? TX.Get("multiplayer_noel_nickname") + id.ToString()
+                : ins.NickNameStr);
+            ins.NicknameIns = noel.NicknameIns;
             return noel;
         }
 
         public static void GenerateMainPRNickname(string nickname)
         {
-            Map2d Mp = DB.MainPR.Mp;
-            string key = $"Nickname_{nickname}";
-            if (Mp.getMoverByName(key) is not null)
+            if (DB.MainPR.Mp.getMoverByName($"Nickname_{nickname}") is not null)
             {
                 return;
             }
-            DB.MainPR.getPosition(out float x, out float y);
-            ShadowNoelNickname follower = Mp.createMover<ShadowNoelNickname>(key, x, y);
-            follower.SetFollowTarget(DB.MainPR, new Vector2(0f, -2f));
-            follower.SetText(nickname);
-            follower.SetTextSize(20f);
-            follower.SetTextColor(uint.MaxValue);
-            follower.SetTextOffset(0f, -50f);
-            follower.SetAlpha(1);
-            DB.MainPR.Mp.assignMover(follower);
-            follower.appear(DB.MainPR.Mp);
-            DB.MainPRNickname = follower;
-            GenerateMainPRMsg();
-        }
-
-        public static void GenerateMainPRMsg()
-        {
-            Map2d Mp = DB.MainPR.Mp;
-            DB.MainPR.getPosition(out float x, out float y);
-            ShadowNoelNickname follower = Mp.createMover<ShadowNoelNickname>($"Msg_{DB.MainPR}", x, y);
-            follower.SetFollowTarget(DB.MainPR, new Vector2(0f, -2f));
-            follower.SetTextSize(20f);
-            follower.SetTextColor(uint.MaxValue);
-            follower.SetTextOffset(0f, 0f);
-            follower.SetAlpha(1);
-            follower.SetBgColor(new(0, 0, 0, 0));
-            DB.MainPR.Mp.assignMover(follower);
-            follower.appear(DB.MainPR.Mp);
-            DB.MainPRMsg = follower;
+            DB.MainPRNickname = ShadowNoelNickname.CreateNickname(DB.MainPR, nickname);
+            DB.MainPRMsg = ShadowNoelNickname.CreateMessageBubble(DB.MainPR);
         }
 
         public static void UpdateShadowNoelInfo(int id)
@@ -148,11 +98,7 @@ namespace WeNeedMoreNoels.SN
             {
                 DisableShadowNoelHit(noel);
             }
-            noel.ChantMagic = info.ChantMagic;
-            noel.MagicAgR = info.MagicAgR;
-            noel.Skill.mp_hold = info.MagicHold;
-            noel.MagicT = info.MagicT;
-            noel.MagicHoldAim = info.MagicHoldAim;
+            noel.Magic.SyncFrom(info);
             noel.IsEvadeO = info.IsEvadeO;
             noel.Skill.ShE.evade_t = info.EvadeT;
             noel.IsAtkO = info.IsAtkO;
@@ -161,7 +107,6 @@ namespace WeNeedMoreNoels.SN
             noel.Skill.ShE.Shield.scale = info.ShieldScale;
             noel.Skill.ShE.Shield.pow = info.ShieldPow;
             noel.CurShieldState = (M2Shield.STATE)info.ShieldState;
-            noel.Skill.Cursor.t_hold = info.HoldT;
         }
 
         public static void DisableShadowNoel(int id)
@@ -176,6 +121,7 @@ namespace WeNeedMoreNoels.SN
                 return;
             }
             ShadowNoel noel = DB.noelIns[id].Noel;
+            noel.Magic.Dispose();
             noel.Mp.destructPxlAnimByMover(noel);
             noel.Mp.removeMover(noel);
             noel.destruct();
@@ -242,9 +188,10 @@ namespace WeNeedMoreNoels.SN
             noel.getSkillManager().switchCane(cane, grade, false);
         }
 
-        public static void DamageNoel(int id, NotifyNoelDamage dmg)
+        /// <summary>把另一名玩家（副本）转来的伤害结算到本机玩家身上。</summary>
+        public static void DamageLocalNoel(NotifyNoelDamage dmg)
         {
-            var Atk = new NelAttackInfo
+            DB.MainPR.DMG.applyDamage(new NelAttackInfo
             {
                 attr = MGATTR.NORMAL,
                 ndmg = NDMG.DEFAULT,
@@ -255,96 +202,7 @@ namespace WeNeedMoreNoels.SN
                 shield_break_ratio = 1f,
                 ignore_nodamage_time = true,
                 nodamage_time = 0,
-            };
-            if (WNMNTools.Type == NetWorkType.Host && id == 0)
-            {
-                DB.MainPR.DMG.applyDamage(Atk, true);
-            }
-            else
-            {
-                if (id == WNMNTools.LocalID)
-                {
-                    DB.MainPR.DMG.applyDamage(Atk, true);
-                }
-                else
-                {
-                    DB.noelIns[id].Noel.DMG.applyDamage(Atk, true);
-                }
-            }
-        }
-
-        public static void SetNoelMagic(int id, NotifyNoelMagic mg)
-        {
-            ShadowNoel noel = DB.noelIns[id].Noel;
-            switch (mg.Type)
-            {
-                case NotifyMagicTpe.Reawake:
-                    DB.noelIns[id].Noel.ReawakeMagic((MGKIND)mg.Kind, mg.T);
-                    if (DB.MNBridge.ContainsKey(DB.noelIns[id].Noel.Skill.CurMg))
-                    {
-                        break;
-                    }
-                    DB.MNBridge.Add(DB.noelIns[id].Noel.Skill.CurMg, DB.noelIns[id].Noel);
-                    break;
-                case NotifyMagicTpe.Sleep:
-                    DB.noelIns[id].Noel.SleepMagic();
-                    break;
-                case NotifyMagicTpe.Kill:
-                    if (!DB.MNBridge.Any(x => x.Value == DB.noelIns[id].Noel))
-                    {
-                        break;
-                    }
-                    DB.MNBridge.Remove(DB.MNBridge.First(x => x.Value == DB.noelIns[id].Noel).Key);
-                    DB.noelIns[id].Noel.KillMagic();
-                    break;
-                case NotifyMagicTpe.Turn:
-                    MagicItem item = DB.noelIns[id].Noel.Skill.Cursor.getCurMg();
-                    MagicNotifiear mn = item.Mn;
-                    float accel_maxt = mn._2.accel_maxt;
-                    mn._0.time += 1f;
-                    mn._0.v0 = mn._2.v0;
-                    mn._0.maxt += mn._2.time + 1f - item.t;
-                    mn._0.accel_mint = accel_maxt;
-                    item.da = (item.sa = mg.agR);
-                    item.sz = 0f;
-                    item.t = 1f;
-                    item.PtcST("mg_fireball_curve", PTCThread.StFollow.NO_FOLLOW, false);
-                    break;
-                case NotifyMagicTpe.WaterShoot:
-                    ((NelM2DBase)noel.M2D).MGC.countMg((Mg, caster) =>
-                    {
-                        MgWaterShard.IdAndPhase(Mg, out int id, out int phase);
-                        if (id == mg.id && phase != 500)
-                        {
-                            ((MgWaterShard)Mg.MGC.OHoldFD[MGKIND.WATERSHARD]).forceShotInit(Mg, 1, mg.agR);
-                        }
-                        return true;
-                    }, noel);
-                    if (((NelM2DBase)noel.M2D).MGC.AItems.All(x => x.phase >> 2 == 5))
-                    {
-                        noel.KillMagic();
-                    }
-                    break;
-                case NotifyMagicTpe.InitBomb:
-                    noel.Skill.initItemBomb(NelItem.GetById(mg.Key), mg.Grade, null);
-                    MagicItem bomb = noel.Skill.MhCurSkill.Mg;
-                    if (!DB.BombDic.ContainsKey(noel))
-                    {
-                        DB.BombDic.Add(noel, bomb);
-                    }
-                    DB.BombDic[noel] = bomb;
-                    break;
-                case NotifyMagicTpe.UpdateBomb:
-                    MagicItem bomb1 = DB.BombDic[noel];
-                    bomb1.phase = mg.Phase;
-                    bomb1.t = mg.T;
-                    bomb1.Dro.x = mg.BombX;
-                    bomb1.Dro.y = mg.BombY;
-                    break;
-                case NotifyMagicTpe.RemoveBomb:
-                    DB.BombDic.Remove(noel);
-                    break;
-            }
+            }, true);
         }
 
         public static void StartCurMapBattle(string key, int starterID)
@@ -373,10 +231,6 @@ namespace WeNeedMoreNoels.SN
                 WNMNTools.BattleStarterID = starterID;
                 DB.CurEnemies.Clear();
                 WNMNTools.OpenSmncBattle();
-            }
-            else
-            {
-                DB.StartedSimBattle = true;
             }
         }
 

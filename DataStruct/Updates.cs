@@ -1,6 +1,5 @@
 ﻿using nel;
 using ProtoBuf;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -190,21 +189,6 @@ namespace WeNeedMoreNoels.DataStruct
     }
 
     [ProtoContract]
-    public class NotifyEnemyUpdate
-    {
-        [ProtoMember(1)]
-        public int SyncID;
-        [ProtoMember(2)]
-        public NotifyEnemyType Type;
-        [ProtoMember(3)]
-        public UpdateEnemyInfo Info;
-        [ProtoMember(4)]
-        public NotifyEnemySummon Summon;
-        [ProtoMember(5)]
-        public NotifyEnemyDamage Damage;
-    }
-
-    [ProtoContract]
     public class UpdateEnemyInfo
     {
         [ProtoMember(1)]
@@ -223,24 +207,6 @@ namespace WeNeedMoreNoels.DataStruct
         public int State;
         [ProtoMember(8)]
         public float T;
-    }
-
-    [ProtoContract]
-    public class NotifyEnemySummon
-    {
-        [ProtoMember(1)]
-        public string Key;
-        [ProtoMember(2)]
-        public bool isBoss;
-    }
-
-    [ProtoContract]
-    public class NotifyEnemyDamage
-    {
-        [ProtoMember(1)]
-        public int hp;
-        [ProtoMember(2)]
-        public int mp;
     }
 
     [ProtoContract]
@@ -305,16 +271,4 @@ namespace WeNeedMoreNoels.DataStruct
         UnreadyHost
     }
 
-    [ProtoContract]
-    public enum NotifyEnemyType
-    {
-        [ProtoEnum]
-        Summon,
-        [ProtoEnum]
-        InfoUpdate,
-        [ProtoEnum]
-        Dead,
-        [ProtoEnum]
-        NotifyDamage
-    }
 }

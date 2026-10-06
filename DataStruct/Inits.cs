@@ -11,8 +11,6 @@ namespace WeNeedMoreNoels.DataStruct
         public NoelType NoelType;
         [ProtoMember(3)]
         public ColorNoelColor NoelColor;
-        [ProtoMember(4)]
-        public bool EmptyNickname;
     }
 
     [ProtoContract]

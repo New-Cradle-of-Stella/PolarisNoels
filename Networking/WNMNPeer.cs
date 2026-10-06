@@ -24,6 +24,22 @@ namespace WeNeedMoreNoels.Networking
         private void Listener_PeerConnectedEvent(NetPeer peer)
         {
             Plugin.Logger.LogInfo($"peer connected: {peer.EndPoint.ToString()}");
+            EntityNet.AnnounceLocalPlayer();
+        }
+
+        const float AnnounceInterval = 2f;
+
+        float nextAnnounce;
+
+        /// <summary>周期性宣告本机玩家的存在，保证后加入的玩家一定能看到我们。</summary>
+        private void AnnounceIfDue()
+        {
+            if (Time.time < nextAnnounce)
+            {
+                return;
+            }
+            nextAnnounce = Time.time + AnnounceInterval;
+            EntityNet.AnnounceLocalPlayer();
         }
 
         private void Update()
@@ -32,7 +48,7 @@ namespace WeNeedMoreNoels.Networking
             {
                 return;
             }
-            WNMNTools.SendUpdateToAllPeers(WNMNTools.LocalID);
+            AnnounceIfDue();
             if (WNMNTools.Type == NetWorkType.Host)
             {
                 WNMNTools.UpdateRoomConfigToAllPeers();
@@ -65,12 +81,16 @@ namespace WeNeedMoreNoels.Networking
                 Plugin.Logger.LogWarning($"bad peer message dropped: {e.Message}");
                 return;
             }
-            foreach (PeerReceiveMessageBase receive in ReceiveMessageManager.GetAllReceives(message))
+            foreach (PeerReceiveMessageBase receive in ReceiveMessageManager.GetAllReceives())
             {
                 try
                 {
                     if (receive.CheckMessage(message))
                     {
+                        if (DB.ShowReceiveDebug)
+                        {
+                            Plugin.Logger.LogInfo(receive.ToMessageString(message));
+                        }
                         receive.ReceiveMessage(message);
                     }
                 }
@@ -103,7 +123,6 @@ namespace WeNeedMoreNoels.Networking
         {
             Plugin.Logger.LogInfo($"peer connect {ip}:{port}");
             localPeer.Connect(ip, port, DB.P2P_ACCESS_KEY);
-            WNMNTools.PeerInited = true;
         }
 
         public int StartPeer()

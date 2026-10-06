@@ -10,10 +10,9 @@ namespace WeNeedMoreNoels.Networking
     {
         static List<PeerReceiveMessageBase> list = [];
 
-        static List<bool> debugEnabledList = [];
-
         public static void Init()
         {
+            list.Clear();
             Type baseType = typeof(PeerReceiveMessageBase);
             var subTypes = Assembly.GetExecutingAssembly()
                 .GetTypes()
@@ -27,20 +26,11 @@ namespace WeNeedMoreNoels.Networking
         public static void RegisterReceiveMessage(PeerReceiveMessageBase receive)
         {
             list.Add(receive);
-            debugEnabledList.Add(false);
         }
 
-        public static IEnumerable<PeerReceiveMessageBase> GetAllReceives(WNMNPeerMessage message)
+        public static IReadOnlyList<PeerReceiveMessageBase> GetAllReceives()
         {
-            for (int i = 0; i < list.Count; i++)
-            {
-                PeerReceiveMessageBase receive = list[i];
-                if (debugEnabledList[i])
-                {
-                    Plugin.Logger.LogInfo(receive.ToMessageString(message));
-                }
-                yield return receive;
-            }
+            return list;
         }
     }
 }

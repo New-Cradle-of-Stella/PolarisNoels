@@ -9,14 +9,6 @@ namespace WeNeedMoreNoels.DataStruct
         public int PeerId;
         [ProtoMember(2)]
         public WNMNPeerMessageType Type;
-        [ProtoMember(3)]
-        public IniConfig InitNoelConfig;
-        [ProtoMember(4)]
-        public UpdateNoelInfo UpdateNoelInfo;
-        [ProtoMember(5)]
-        public NotifyNoelDamage NotifyNoelDamage;
-        [ProtoMember(6)]
-        public NotifyNoelMagic NotifyNoelMagic;
         [ProtoMember(7)]
         public UpdatePeerInfo UpdatePeerInfo;
         [ProtoMember(8)]
@@ -29,27 +21,19 @@ namespace WeNeedMoreNoels.DataStruct
         public NotifyCoinChanged NotifyCoinChanged;
         [ProtoMember(12)]
         public NotifyRoomUpdate NotifyRoomUpdate;
-        [ProtoMember(13)]
-        public NotifyEnemyUpdate NotifyEnemyUpdate;
         [ProtoMember(14)]
         public BattleInfo Battle;
         [ProtoMember(15)]
         public SimBattle SimBattle;
         [ProtoMember(16)]
         public SimBattleSync SyncSimBattle;
+        [ProtoMember(17)]
+        public EntityMessage Entity;
     }
 
     [ProtoContract]
     public enum WNMNPeerMessageType
     {
-        [ProtoEnum]
-        InitNoel,
-        [ProtoEnum]
-        UpdateNoelInfo,
-        [ProtoEnum]
-        NotifyNoelDamage,
-        [ProtoEnum]
-        NotifyNoelMagic,
         [ProtoEnum]
         NotifyNoelStartBattle,
         [ProtoEnum]
@@ -71,10 +55,10 @@ namespace WeNeedMoreNoels.DataStruct
         [ProtoEnum]
         NotifyRoomUpdate,
         [ProtoEnum]
-        NotifyEnemyUpdate,
-        [ProtoEnum]
         NotifySimBattle,
         [ProtoEnum]
-        NotifySimBattleSync
+        NotifySimBattleSync,
+        [ProtoEnum]
+        Entity
     }
 }
