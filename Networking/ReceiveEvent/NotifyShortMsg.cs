@@ -1,21 +1,21 @@
 ﻿using Newtonsoft.Json;
-using WeNeedMoreNoels.DataStruct;
+using PolarisNoels.DataStruct;
 
-namespace WeNeedMoreNoels.Networking.ReceiveEvent
+namespace PolarisNoels.Networking.ReceiveEvent
 {
     public class NotifyShortMsg : PeerReceiveMessageBase
     {
-        public override bool CheckMessage(WNMNPeerMessage message)
+        public override bool CheckMessage(PolarisNoelsPeerMessage message)
         {
-            return message.Type == WNMNPeerMessageType.NotifyShortMsg && message.PeerId != WNMNTools.LocalID;
+            return message.Type == PolarisNoelsPeerMessageType.NotifyShortMsg && message.PeerId != PolarisNoelsTools.LocalID;
         }
 
-        public override void ReceiveMessage(WNMNPeerMessage message)
+        public override void ReceiveMessage(PolarisNoelsPeerMessage message)
         {
-            WNMNTools.SendMsg(message.NotifyShortMsg.ID, message.NotifyShortMsg.key);
+            PolarisNoelsTools.SendMsg(message.NotifyShortMsg.ID, message.NotifyShortMsg.key);
         }
 
-        public override string ToMessageString(WNMNPeerMessage message)
+        public override string ToMessageString(PolarisNoelsPeerMessage message)
         {
             return $"ShortMsg:{JsonConvert.SerializeObject(message)}";
         }

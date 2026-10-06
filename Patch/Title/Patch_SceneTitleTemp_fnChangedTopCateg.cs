@@ -3,7 +3,7 @@ using nel.title;
 using System.Reflection;
 using XX;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(SceneTitleTemp), nameof(SceneTitleTemp.fnChangedTopCateg))]
     public class Patch_SceneTitleTemp_fnChangedTopCateg
@@ -18,7 +18,7 @@ namespace WeNeedMoreNoels.Patch
             string title = _B.Get(cur_value).title;
             if (title == "&&btn_multiplayer")
             {
-                DB.WNMNUIClicking = true;
+                DB.PolarisNoelsUIClicking = true;
                 MethodInfo method = AccessTools.Method(typeof(SceneTitleTemp), "changeState");
                 method.Invoke(__instance, [SceneTitleTemp.STATE.DIFF_SELECT]);
             }

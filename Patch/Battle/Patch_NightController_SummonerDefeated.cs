@@ -2,7 +2,7 @@
 using nel;
 using XX;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(NightController), nameof(NightController.SummonerDefeated))]
     public class Patch_NightController_SummonerDefeated
@@ -10,16 +10,16 @@ namespace WeNeedMoreNoels.Patch
         [HarmonyPrefix]
         static void Prefix(ref int ob_add)
         {
-            switch (WNMNTools.SyncType)
+            switch (PolarisNoelsTools.SyncType)
             {
                 case EnemySyncType.StarterOnly:
                     break;
                 case EnemySyncType.SmartAverage:
-                    float factor = 1 + 0.25f * (WNMNTools.TotalBattleNoelCount - 1);
+                    float factor = 1 + 0.25f * (PolarisNoelsTools.TotalBattleNoelCount - 1);
                     ob_add = X.IntU(ob_add * factor);
                     break;
                 case EnemySyncType.Independent:
-                    ob_add *= WNMNTools.TotalBattleNoelCount;
+                    ob_add *= PolarisNoelsTools.TotalBattleNoelCount;
                     break;
             }
         }

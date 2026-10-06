@@ -2,7 +2,7 @@
 using nel.mgm.smncr;
 using XX;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(UiSmncBattleConfirm), nameof(UiSmncBattleConfirm.fnClickSubmit))]
     public class Patch_UiSmncBattleConfirm_fnClickSubmit

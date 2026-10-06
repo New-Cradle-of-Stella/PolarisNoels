@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using nel;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(M2PrADmgEffect), nameof(M2PrADmgEffect.applyDamageAfter))]
     public class Patch_M2PrADmgEffect_applyDamageAfter

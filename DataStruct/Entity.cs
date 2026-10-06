@@ -1,6 +1,6 @@
 using ProtoBuf;
 
-namespace WeNeedMoreNoels.DataStruct
+namespace PolarisNoels.DataStruct
 {
     /// <summary>统一实体同步协议的信封。玩家、敌人等一切被同步的 Mover 都走这一条消息。</summary>
     [ProtoContract]

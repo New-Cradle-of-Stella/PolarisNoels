@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using nel.mgm.smncr;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(UiSmncBattleConfirm), nameof(UiSmncBattleConfirm.activate))]
     public class Patch_UiSmncBattleConfirm_activate

@@ -1,8 +1,8 @@
 ﻿using HarmonyLib;
 using nel;
-using WeNeedMoreNoels.SN;
+using PolarisNoels.SN;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(NelPlayerCursor), nameof(NelPlayerCursor.initMagic))]
     public class Patch_NelPlayerCursor_initMagic

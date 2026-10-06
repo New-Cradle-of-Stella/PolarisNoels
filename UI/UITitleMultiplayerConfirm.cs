@@ -2,7 +2,7 @@
 using UnityEngine;
 using XX;
 
-namespace WeNeedMoreNoels
+namespace PolarisNoels
 {
     public class UITitleMultiplayerConfirm : UiTitleDifficultyConfirm
     {
@@ -12,7 +12,7 @@ namespace WeNeedMoreNoels
 
         public override int prepareMesh(MeshDrawer Md, int start_id)
         {
-            MTI mti = MTI.LoadContainer("WNMNResources\\multiplayer");
+            MTI mti = MTI.LoadContainer("PolarisNoelsResources\\multiplayer");
             MImage image = mti.LoadImage("multiplayer");
             Md.chooseSubMesh(start_id, false, false);
             Md.setMaterial(image.getMtr(BLEND.NORMAL, -1), false);
@@ -39,8 +39,8 @@ namespace WeNeedMoreNoels
             _result = result;
             if (result >= 0)
             {
-                DB.WNMNEnterNetworkType = (NetWorkType)diff_cursor;
-                DB.WNMNEnterNetworkTypeSelected = true;
+                DB.PolarisNoelsEnterNetworkType = (NetWorkType)diff_cursor;
+                DB.PolarisNoelsEnterNetworkTypeSelected = true;
                 SND.Ui.play("enter");
             }
             return false;

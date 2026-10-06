@@ -1,25 +1,25 @@
 ﻿using Newtonsoft.Json;
-using WeNeedMoreNoels.DataStruct;
-using WeNeedMoreNoels.SN;
+using PolarisNoels.DataStruct;
+using PolarisNoels.SN;
 
-namespace WeNeedMoreNoels.Networking.ReceiveEvent
+namespace PolarisNoels.Networking.ReceiveEvent
 {
     public class NotifyNoelStartBattleEvent : PeerReceiveMessageBase
     {
-        public override bool CheckMessage(WNMNPeerMessage message)
+        public override bool CheckMessage(PolarisNoelsPeerMessage message)
         {
-            return message.Type == WNMNPeerMessageType.NotifyNoelStartBattle && message.PeerId != WNMNTools.LocalID;
+            return message.Type == PolarisNoelsPeerMessageType.NotifyNoelStartBattle && message.PeerId != PolarisNoelsTools.LocalID;
         }
 
-        public override void ReceiveMessage(WNMNPeerMessage message)
+        public override void ReceiveMessage(PolarisNoelsPeerMessage message)
         {
             if (message.Battle.isSim)
             {
                 int x, y;
-                if (message.Battle.SpawnPoints.ContainsKey(WNMNTools.LocalID))
+                if (message.Battle.SpawnPoints.ContainsKey(PolarisNoelsTools.LocalID))
                 {
-                    x = message.Battle.SpawnPoints[WNMNTools.LocalID].x;
-                    y = message.Battle.SpawnPoints[WNMNTools.LocalID].y;
+                    x = message.Battle.SpawnPoints[PolarisNoelsTools.LocalID].x;
+                    y = message.Battle.SpawnPoints[PolarisNoelsTools.LocalID].y;
                 }
                 else
                 {
@@ -30,11 +30,13 @@ namespace WeNeedMoreNoels.Networking.ReceiveEvent
             }
             else
             {
+                if (DB.IsInBattle && PolarisNoelsTools.BattleStarterID == message.PeerId
+                    && DB.CurSummoner?.key == message.Battle.key) return;
                 ShadowNoelExtensions.StartCurMapBattle(message.Battle.key, message.PeerId);
             }
         }
 
-        public override string ToMessageString(WNMNPeerMessage message)
+        public override string ToMessageString(PolarisNoelsPeerMessage message)
         {
             return $"Notify start battle, info:{JsonConvert.SerializeObject(message)}";
         }

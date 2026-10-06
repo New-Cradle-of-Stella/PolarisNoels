@@ -1,9 +1,9 @@
 using m2d;
 using nel;
-using WeNeedMoreNoels.DataStruct;
+using PolarisNoels.DataStruct;
 using XX;
 
-namespace WeNeedMoreNoels
+namespace PolarisNoels
 {
     /// <summary>
     /// 普通敌人模块：同步位置、姿态、朝向、血量、状态。

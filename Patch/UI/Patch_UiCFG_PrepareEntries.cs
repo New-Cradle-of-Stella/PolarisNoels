@@ -2,7 +2,7 @@ using HarmonyLib;
 using nel;
 using System.Collections.Generic;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(UiCFG), nameof(UiCFG.PrepareEntries))]
     public static class Patch_UiCFG_PrepareEntries

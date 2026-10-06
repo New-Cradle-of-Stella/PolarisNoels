@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using nel.title;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(SceneTitleTemp), nameof(SceneTitleTemp.runIRD))]
     public class Patch_SceneTitleTemp_runIRD

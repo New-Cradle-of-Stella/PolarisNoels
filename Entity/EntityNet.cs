@@ -1,24 +1,25 @@
-﻿using LiteNetLib;
-using ProtoBuf;
+﻿using ProtoBuf;
 using System.IO;
-using WeNeedMoreNoels.DataStruct;
+using PolarisNoels.DataStruct;
+using PolarisNoels.Networking;
 
-namespace WeNeedMoreNoels
+namespace PolarisNoels
 {
     /// <summary>实体同步的收发入口。所有实体消息都经过这里。</summary>
     public static class EntityNet
     {
-        static bool CanSend => DB.IsMultiplayer && WNMNTools.peer != null && WNMNTools.LocalID >= 0;
+        static bool CanSend => DB.IsMultiplayer && PolarisNoelsTools.peer != null && PolarisNoelsTools.LocalID >= 0;
 
-        static void Send(EntityMessage message, DeliveryMethod delivery)
+        static void Send(EntityMessage message, NetChannel channel)
         {
-            WNMNPeerMessage envelope = new()
+            PolarisNoelsPeerMessage envelope = new()
             {
-                Type = WNMNPeerMessageType.Entity,
-                PeerId = WNMNTools.LocalID,
+                Type = PolarisNoelsPeerMessageType.Entity,
+                PeerId = PolarisNoelsTools.LocalID,
                 Entity = message
             };
-            WNMNTools.Broadcast(envelope, delivery);
+            bool playerAnnouncement = message.Type == EntityMsgType.Spawn && message.Spawn?.Kind == EntityKind.Noel;
+            PolarisNoelsTools.Broadcast(envelope, channel, mapOnly: !playerAnnouncement);
         }
 
         #region 发送
@@ -28,7 +29,7 @@ namespace WeNeedMoreNoels
             {
                 return;
             }
-            Send(new EntityMessage { Type = EntityMsgType.Spawn, EntityId = id, Spawn = spawn }, DeliveryMethod.ReliableOrdered);
+            Send(new EntityMessage { Type = EntityMsgType.Spawn, EntityId = id, Spawn = spawn }, NetChannel.Reliable);
         }
 
         public static void SendState(NetEntity entity)
@@ -37,6 +38,8 @@ namespace WeNeedMoreNoels
             {
                 return;
             }
+            // 没有同图接收者时连快照都不构建，避免魔法/动画采样和序列化开销。
+            if (entity.MapKey != DB.MainPR.Mp.key || !PolarisNoelsTools.peer.HasMapRecipients(entity.MapKey)) return;
             EntityState state = new();
             entity.WriteState(state);
             if (state.Noel == null && state.Enemy == null)
@@ -44,7 +47,7 @@ namespace WeNeedMoreNoels
                 return;
             }
             // 状态是可以丢的：只要最新的一包，旧包到得晚就直接丢弃
-            Send(new EntityMessage { Type = EntityMsgType.State, EntityId = entity.Id, State = state }, DeliveryMethod.Sequenced);
+            Send(new EntityMessage { Type = EntityMsgType.State, EntityId = entity.Id, State = state }, NetChannel.Sequenced);
         }
 
         public static void SendEvent(int entityId, EntityEvent ev)
@@ -53,7 +56,7 @@ namespace WeNeedMoreNoels
             {
                 return;
             }
-            Send(new EntityMessage { Type = EntityMsgType.Event, EntityId = entityId, Event = ev }, DeliveryMethod.ReliableOrdered);
+            Send(new EntityMessage { Type = EntityMsgType.Event, EntityId = entityId, Event = ev }, NetChannel.Reliable);
         }
 
         public static void SendDespawn(int id)
@@ -62,26 +65,26 @@ namespace WeNeedMoreNoels
             {
                 return;
             }
-            Send(new EntityMessage { Type = EntityMsgType.Despawn, EntityId = id }, DeliveryMethod.ReliableOrdered);
+            Send(new EntityMessage { Type = EntityMsgType.Despawn, EntityId = id }, NetChannel.Reliable);
         }
 
         /// <summary>向所有人宣告本机玩家的存在（昵称、外观、队伍）。</summary>
         public static void AnnounceLocalPlayer()
         {
-            if (!CanSend || !DB.partyInfos.TryGetValue(WNMNTools.LocalID, out var party))
+            if (!CanSend || !DB.partyInfos.TryGetValue(PolarisNoelsTools.LocalID, out var party))
             {
                 return;
             }
-            SendSpawn(EntityIds.ForPlayer(WNMNTools.LocalID), new EntitySpawn
+            SendSpawn(EntityIds.ForPlayer(PolarisNoelsTools.LocalID), new EntitySpawn
             {
                 Kind = EntityKind.Noel,
                 Noel = new IniConfig
                 {
-                    Id = WNMNTools.LocalID,
+                    Id = PolarisNoelsTools.LocalID,
                     ClientConfig = DB.InitConfig,
                     PartyConfig = new PartyConfig
                     {
-                        ID = WNMNTools.LocalID,
+                        ID = PolarisNoelsTools.LocalID,
                         A = party.Color.a,
                         R = party.Color.r,
                         G = party.Color.g,
@@ -91,10 +94,54 @@ namespace WeNeedMoreNoels
                 }
             });
         }
+
+        /// <summary>恢复同图时补发当前实体，避免异图期间错过敌人的 Spawn 后只收到状态。</summary>
+        public static void SendCurrentMapToPeer(int peerId)
+        {
+            if (!CanSend || DB.MainPR?.Mp == null || !PolarisNoelsTools.peer.IsPeerOnCurrentMap(peerId)) return;
+            // 对方可能在异图期间错过战斗开始；先恢复战斗，再按序补发敌人。
+            if (DB.IsInBattle && DB.CurSummoner?.Mp?.key == DB.MainPR.Mp.key
+                && PolarisNoelsTools.BattleStarterID == PolarisNoelsTools.LocalID && !PolarisNoelsTools.SimBattleReady)
+            {
+                PolarisNoelsTools.peer.SendToPeer(peerId, new PolarisNoelsPeerMessage
+                {
+                    Type = PolarisNoelsPeerMessageType.NotifyNoelStartBattle,
+                    PeerId = PolarisNoelsTools.LocalID,
+                    MapKey = DB.MainPR.Mp.key,
+                    Battle = new() { key = DB.CurSummoner.key, isSim = false }
+                }, NetChannel.Reliable);
+            }
+            foreach (NetEntity entity in EntityRegistry.GetAuthorities())
+            {
+                if (entity.MapKey != DB.MainPR.Mp.key) continue;
+                if (entity.SpawnInfo != null)
+                {
+                    SendInitial(new EntityMessage { Type = EntityMsgType.Spawn, EntityId = entity.Id, Spawn = entity.SpawnInfo });
+                }
+                EntityState state = new();
+                entity.WriteState(state);
+                if (state.Noel != null || state.Enemy != null)
+                {
+                    SendInitial(new EntityMessage { Type = EntityMsgType.State, EntityId = entity.Id, State = state });
+                }
+            }
+
+            void SendInitial(EntityMessage message)
+            {
+                // 初始 Spawn 和快照走同一可靠通道，保证先创建副本再应用状态。
+                PolarisNoelsTools.peer.SendToPeer(peerId, new PolarisNoelsPeerMessage
+                {
+                    Type = PolarisNoelsPeerMessageType.Entity,
+                    PeerId = PolarisNoelsTools.LocalID,
+                    MapKey = DB.MainPR.Mp.key,
+                    Entity = message
+                }, NetChannel.Reliable);
+            }
+        }
         #endregion
 
         #region 接收
-        public static void Receive(WNMNPeerMessage message)
+        public static void Receive(PolarisNoelsPeerMessage message)
         {
             EntityMessage m = message.Entity;
             if (m == null)
@@ -137,7 +184,7 @@ namespace WeNeedMoreNoels
             // 玩家不在本地图时没有对应 Mover，但仍需记录最新状态（含所在地图），以便对方进入同图时立刻出现
             if (EntityIds.IsPlayer(m.EntityId) && m.State?.Noel != null)
             {
-                WNMNTools.UpdateNoel(EntityIds.Owner(m.EntityId), m.State.Noel);
+                PolarisNoelsTools.UpdateNoel(EntityIds.Owner(m.EntityId), m.State.Noel);
             }
         }
         #endregion

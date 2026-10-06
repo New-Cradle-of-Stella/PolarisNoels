@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using nel;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(MagicItem), nameof(MagicItem.calcAimPos))]
     public class Patch_MagicItem_calcAimPos

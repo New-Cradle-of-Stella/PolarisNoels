@@ -1,22 +1,22 @@
 ﻿using Newtonsoft.Json;
-using WeNeedMoreNoels.DataStruct;
+using PolarisNoels.DataStruct;
 
-namespace WeNeedMoreNoels.Networking.ReceiveEvent
+namespace PolarisNoels.Networking.ReceiveEvent
 {
     /// <summary>所有实体同步消息（Spawn / State / Event / Despawn）的统一入口。</summary>
     public class EntityMessageEvent : PeerReceiveMessageBase
     {
-        public override bool CheckMessage(WNMNPeerMessage message)
+        public override bool CheckMessage(PolarisNoelsPeerMessage message)
         {
-            return message.Type == WNMNPeerMessageType.Entity && message.PeerId != WNMNTools.LocalID;
+            return message.Type == PolarisNoelsPeerMessageType.Entity && message.PeerId != PolarisNoelsTools.LocalID;
         }
 
-        public override void ReceiveMessage(WNMNPeerMessage message)
+        public override void ReceiveMessage(PolarisNoelsPeerMessage message)
         {
             EntityNet.Receive(message);
         }
 
-        public override string ToMessageString(WNMNPeerMessage message)
+        public override string ToMessageString(PolarisNoelsPeerMessage message)
         {
             return $"Entity:{JsonConvert.SerializeObject(message)}";
         }

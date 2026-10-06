@@ -361,3 +361,8 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Native compilation and local verification artifacts (keep Cargo.lock).
+/native/polaris_net/target/
+/.build/
+/tools/NetSmoke/run/

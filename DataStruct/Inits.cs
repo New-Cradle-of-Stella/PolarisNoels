@@ -1,6 +1,6 @@
 ﻿using ProtoBuf;
 
-namespace WeNeedMoreNoels.DataStruct
+namespace PolarisNoels.DataStruct
 {
     [ProtoContract]
     public class ClientConfig

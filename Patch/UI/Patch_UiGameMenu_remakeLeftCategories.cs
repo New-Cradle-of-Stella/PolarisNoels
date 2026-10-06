@@ -3,7 +3,7 @@ using System.Reflection.Emit;
 using HarmonyLib;
 using nel.gm;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(UiGameMenu), "remakeLeftCategories")]
     public class Patch_UiGameMenu_remakeLeftCategories

@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using nel;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(EnemySummoner), nameof(EnemySummoner.close))]
     public class Patch_EnemySummoner_close
@@ -9,7 +9,7 @@ namespace WeNeedMoreNoels.Patch
         [HarmonyPrefix]
         static bool Prefix(EnemySummoner __instance, ref EnemySummoner __result)
         {
-            if (WNMNTools.SyncType != EnemySyncType.StarterOnly && WNMNTools.HasSyncEnemy())
+            if (PolarisNoelsTools.SyncType != EnemySyncType.StarterOnly && PolarisNoelsTools.HasSyncEnemy())
             {
                 __result = __instance;
                 return false;

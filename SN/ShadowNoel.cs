@@ -1,9 +1,9 @@
 ﻿using m2d;
 using nel;
 using UnityEngine;
-using WeNeedMoreNoels.DataStruct;
+using PolarisNoels.DataStruct;
 
-namespace WeNeedMoreNoels.SN
+namespace PolarisNoels.SN
 {
     public class ShadowNoel : PRMain
     {

@@ -1,14 +1,14 @@
 ﻿using ProtoBuf;
 
-namespace WeNeedMoreNoels.DataStruct
+namespace PolarisNoels.DataStruct
 {
     [ProtoContract]
-    public class WNMNPeerMessage
+    public class PolarisNoelsPeerMessage
     {
         [ProtoMember(1)]
         public int PeerId;
         [ProtoMember(2)]
-        public WNMNPeerMessageType Type;
+        public PolarisNoelsPeerMessageType Type;
         [ProtoMember(7)]
         public UpdatePeerInfo UpdatePeerInfo;
         [ProtoMember(8)]
@@ -29,10 +29,13 @@ namespace WeNeedMoreNoels.DataStruct
         public SimBattleSync SyncSimBattle;
         [ProtoMember(17)]
         public EntityMessage Entity;
+        /// <summary>仅地图内消息填写；防止切图后到达的旧消息应用到新地图。</summary>
+        [ProtoMember(18)]
+        public string MapKey;
     }
 
     [ProtoContract]
-    public enum WNMNPeerMessageType
+    public enum PolarisNoelsPeerMessageType
     {
         [ProtoEnum]
         NotifyNoelStartBattle,

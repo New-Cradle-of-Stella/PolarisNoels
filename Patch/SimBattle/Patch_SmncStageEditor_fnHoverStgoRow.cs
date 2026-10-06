@@ -2,7 +2,7 @@
 using nel.mgm.smncr;
 using XX;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(SmncStageEditor), nameof(SmncStageEditor.fnHoverStgoRow))]
     public class Patch_SmncStageEditor_fnHoverStgoRow
@@ -14,7 +14,7 @@ namespace WeNeedMoreNoels.Patch
             {
                 return;
             }
-            if (B.title == "0" && !WNMNTools.IsSettingSpawnLocation)
+            if (B.title == "0" && !PolarisNoelsTools.IsSettingSpawnLocation)
             {
                 B.SetLocked(true);
                 UiMenuMul.BxSSI.activate();
@@ -25,7 +25,7 @@ namespace WeNeedMoreNoels.Patch
             {
                 UiMenuMul.BxSSI.deactivate();
             }
-            WNMNTools.SSE = __instance;
+            PolarisNoelsTools.SSE = __instance;
         }
     }
 }

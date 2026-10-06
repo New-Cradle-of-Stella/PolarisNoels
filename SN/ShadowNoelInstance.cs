@@ -1,6 +1,6 @@
-﻿using WeNeedMoreNoels.DataStruct;
+﻿using PolarisNoels.DataStruct;
 
-namespace WeNeedMoreNoels.SN
+namespace PolarisNoels.SN
 {
     public class ShadowNoelInstance
     {

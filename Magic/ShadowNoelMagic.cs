@@ -1,11 +1,11 @@
 ﻿using nel;
 using System.Collections.Generic;
 using System.Linq;
-using WeNeedMoreNoels.DataStruct;
-using WeNeedMoreNoels.SN;
+using PolarisNoels.DataStruct;
+using PolarisNoels.SN;
 using XX;
 
-namespace WeNeedMoreNoels
+namespace PolarisNoels
 {
     /// <summary>
     /// 远程玩家（ShadowNoel）的魔法控制器：

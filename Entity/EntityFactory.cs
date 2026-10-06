@@ -1,10 +1,10 @@
-using m2d;
+﻿using m2d;
 using nel;
 using UnityEngine;
-using WeNeedMoreNoels.DataStruct;
-using WeNeedMoreNoels.SN;
+using PolarisNoels.DataStruct;
+using PolarisNoels.SN;
 
-namespace WeNeedMoreNoels
+namespace PolarisNoels
 {
     /// <summary>创建实体并挂上 <see cref="NetEntity"/> 与对应模块。</summary>
     public static class EntityFactory
@@ -39,10 +39,11 @@ namespace WeNeedMoreNoels
         {
             int id = EntityIds.NewLocal();
             EntityKind kind = isBoss ? EntityKind.Boss : EntityKind.Enemy;
-            EntityNet.SendSpawn(id, new EntitySpawn { Kind = kind, Key = key });
             IEntityModule module = isBoss ? new BossEnemyModule() : new EnemyModule();
-            enemy.gameObject.AddComponent<NetEntity>()
-                .Setup(id, WNMNTools.LocalID, EntityRole.Authority, kind, module);
+            NetEntity entity = enemy.gameObject.AddComponent<NetEntity>()
+                .Setup(id, PolarisNoelsTools.LocalID, EntityRole.Authority, kind, module);
+            entity.SpawnInfo = new EntitySpawn { Kind = kind, Key = key };
+            EntityNet.SendSpawn(id, entity.SpawnInfo);
         }
 
         static void CreateEnemyReplica(int id, int ownerPeer, EntitySpawn spawn)
@@ -72,7 +73,7 @@ namespace WeNeedMoreNoels
         /// <summary>收到 Spawn 消息。</summary>
         public static void OnSpawn(int id, int ownerPeer, EntitySpawn spawn)
         {
-            if (spawn == null || ownerPeer == WNMNTools.LocalID)
+            if (spawn == null || ownerPeer == PolarisNoelsTools.LocalID)
             {
                 return;
             }
@@ -89,7 +90,7 @@ namespace WeNeedMoreNoels
                     break;
                 case EntityKind.Boss:
                     // Boss 由游戏自己创建，这里只需等它出现后挂上副本同步器
-                    if (DB.IsInBattle && WNMNTools.BattleStarterID != WNMNTools.LocalID && !EntityRegistry.TryGet(id, out _))
+                    if (DB.IsInBattle && PolarisNoelsTools.BattleStarterID != PolarisNoelsTools.LocalID && !EntityRegistry.TryGet(id, out _))
                     {
                         GameObject binder = new("BossBinder");
                         BossBinder component = binder.AddComponent<BossBinder>();

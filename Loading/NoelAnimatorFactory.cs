@@ -1,9 +1,9 @@
 using m2d;
 using nel;
-using WeNeedMoreNoels.DataStruct;
-using WeNeedMoreNoels.SN;
+using PolarisNoels.DataStruct;
+using PolarisNoels.SN;
 
-namespace WeNeedMoreNoels
+namespace PolarisNoels
 {
     /// <summary>按联机配置（普通 / 反转 / 彩色 Noel）创建玩家动画器。</summary>
     public static class NoelAnimatorFactory
@@ -11,7 +11,7 @@ namespace WeNeedMoreNoels
         /// <summary>创建动画器。返回 false 表示非联机，应交给原版处理。</summary>
         public static bool TryCreate(PRNoel noel, ref PrAnimator Anm)
         {
-            WNMNTools.NetworkConfig config = DB.InitConfig;
+            PolarisNoelsTools.NetworkConfig config = DB.InitConfig;
             if (config is null)
             {
                 return false;

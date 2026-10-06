@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using XX;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(TX), nameof(TX.reloadTx))]
     public class Patch_TX_reloadTx

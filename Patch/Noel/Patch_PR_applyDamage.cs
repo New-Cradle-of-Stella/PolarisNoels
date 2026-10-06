@@ -1,9 +1,9 @@
 ﻿using HarmonyLib;
 using m2d;
 using nel;
-using WeNeedMoreNoels.SN;
+using PolarisNoels.SN;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {//NelAttackInfo Atk, ref HITTYPE add_hittype, bool force
     [HarmonyPatch(typeof(PR), nameof(PR.applyDamage), [typeof(NelAttackInfo), typeof(HITTYPE), typeof(bool)], [ArgumentType.Normal, ArgumentType.Ref, ArgumentType.Normal])]
     public class Patch_PR_applyDamage

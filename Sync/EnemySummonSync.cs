@@ -1,7 +1,7 @@
 ﻿using nel;
 using nel.smnp;
 
-namespace WeNeedMoreNoels
+namespace PolarisNoels
 {
     /// <summary>召唤敌人时的联机同步决策：是否可同步、是否为 Boss，以及同步组件的挂载。</summary>
     public static class EnemySummonSync
@@ -27,7 +27,7 @@ namespace WeNeedMoreNoels
                 return true;
             }
             bool belongBoss = BelongsToBoss(K.enemyid);
-            if (WNMNTools.SyncType == EnemySyncType.StarterOnly && WNMNTools.BattleStarterID != WNMNTools.LocalID)
+            if (PolarisNoelsTools.SyncType == EnemySyncType.StarterOnly && PolarisNoelsTools.BattleStarterID != PolarisNoelsTools.LocalID)
             {
                 if (belongBoss)
                 {
@@ -51,7 +51,7 @@ namespace WeNeedMoreNoels
             }
             if (state.IsBoss)
             {
-                if (WNMNTools.BattleStarterID == WNMNTools.LocalID && IsSyncBoss(K.enemyid))
+                if (PolarisNoelsTools.BattleStarterID == PolarisNoelsTools.LocalID && IsSyncBoss(K.enemyid))
                 {
                     RegisterHost(enemy, K.enemyid, true);
                 }

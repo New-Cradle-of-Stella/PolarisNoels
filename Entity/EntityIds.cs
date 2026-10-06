@@ -1,4 +1,4 @@
-namespace WeNeedMoreNoels
+namespace PolarisNoels
 {
     /// <summary>
     /// 实体 ID = (所有者 PeerId + 1) &lt;&lt; 20 | 序号。
@@ -21,7 +21,7 @@ namespace WeNeedMoreNoels
             {
                 s = ++seq & SeqMask;
             }
-            return ((WNMNTools.LocalID + 1) << SeqBits) | s;
+            return ((PolarisNoelsTools.LocalID + 1) << SeqBits) | s;
         }
 
         public static int Owner(int entityId) => (entityId >> SeqBits) - 1;

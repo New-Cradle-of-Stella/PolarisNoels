@@ -1,8 +1,8 @@
 ﻿using HarmonyLib;
 using nel;
-using WeNeedMoreNoels.SN;
+using PolarisNoels.SN;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(M2PrSkill), nameof(M2PrSkill.magicProgressable))]
     public class Patch_M2PrSkill_magicProgressable

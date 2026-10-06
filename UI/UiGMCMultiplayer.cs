@@ -6,7 +6,7 @@ using System.Linq;
 using UnityEngine;
 using XX;
 
-namespace WeNeedMoreNoels
+namespace PolarisNoels
 {
     public class UiGMCMultiplayer : UiGMC
     {
@@ -75,9 +75,9 @@ namespace WeNeedMoreNoels
                         title = TX.Get("Submit"),
                         fnClick = B =>
                         {
-                            WNMNTools.SendUpdatePeerInfoToAllPeers(WNMNTools.LocalID, nicknameInput.text);
+                            PolarisNoelsTools.SendUpdatePeerInfoToAllPeers(PolarisNoelsTools.LocalID, nicknameInput.text);
                             DB.Nickname = nicknameInput.text;
-                            DB.peerConfigs[WNMNTools.LocalID].Nickname = nicknameInput.text;
+                            DB.peerConfigs[PolarisNoelsTools.LocalID].Nickname = nicknameInput.text;
                             DB.MainPRNickname.SetText(nicknameInput.text);
                             BxCmd.deactivate();
                             BxR.Focus();
@@ -110,7 +110,7 @@ namespace WeNeedMoreNoels
                 h = btnH,
                 fnClick = B =>
                 {
-                    List<KeyValuePair<int, string>> btns = [.. WNMNTools.AllNicknames, new(-1, TX.Get("multiplayer_reset")), new(0, TX.Get("Cancel"))];
+                    List<KeyValuePair<int, string>> btns = [.. PolarisNoelsTools.AllNicknames, new(-1, TX.Get("multiplayer_reset")), new(0, TX.Get("Cancel"))];
                     UiBoxDesigner BxCmd = UiMenuMul.BxP;
                     BxCmd.activate();
                     IN.setZ(BxCmd.transform, BxR.transform.position.z - 1f);
@@ -135,7 +135,7 @@ namespace WeNeedMoreNoels
                                 int i = btns.Find(x => x.Value == BSub.title).Key;
                                 if (i == -1)
                                 {
-                                    DB.LocalNoelParty = WNMNTools.LocalID;
+                                    DB.LocalNoelParty = PolarisNoelsTools.LocalID;
                                 }
                                 else
                                 {
@@ -176,7 +176,7 @@ namespace WeNeedMoreNoels
                         string targetKey = DB.noelIns[i].MpKey;
                         float x = DB.noelIns[i].NoelInfo.PositionX;
                         float y = DB.noelIns[i].NoelInfo.PositionY;
-                        WNMNTools.TransferMainNoel(targetKey, x, y);
+                        PolarisNoelsTools.TransferMainNoel(targetKey, x, y);
                         GM.deactivate();
                     });
                     return true;
@@ -224,7 +224,7 @@ namespace WeNeedMoreNoels
                         {
                             if (BSub.title != TX.Get("Cancel"))
                             {
-                                WNMNTools.BroadcastMsg(msgs[titles.IndexOf(BSub.title)]);
+                                PolarisNoelsTools.BroadcastMsg(msgs[titles.IndexOf(BSub.title)]);
                                 BxCmd.deactivate();
                                 BSub.Select(true);
                                 BxR.Focus();
@@ -251,7 +251,7 @@ namespace WeNeedMoreNoels
             });
             btns.Add(UiMenuMul.SendMsgButton);//3
             BxR.Br();
-            if (WNMNTools.Type == NetWorkType.Host)
+            if (PolarisNoelsTools.Type == NetWorkType.Host)
             {
                 BxR.addHr(new()
                 {
@@ -275,7 +275,7 @@ namespace WeNeedMoreNoels
                     {
                         OnPlayerSelect(B, i =>
                         {
-                            WNMNTools.Kick(i);
+                            PolarisNoelsTools.Kick(i);
                             GM.deactivate();
                         });
                         return true;
@@ -290,7 +290,7 @@ namespace WeNeedMoreNoels
                     {
                         OnPlayerSelect(B, i =>
                         {
-                            WNMNTools.Mute(i);
+                            PolarisNoelsTools.Mute(i);
                             GM.deactivate();
                         });
                         return true;
@@ -304,7 +304,7 @@ namespace WeNeedMoreNoels
                     h = btnH,
                     fnClick = B =>
                     {
-                        WNMNTools.SendNotifyNoelTransferToAllPeers(0);
+                        PolarisNoelsTools.SendNotifyNoelTransferToAllPeers(0);
                         GM.deactivate();
                         return true;
                     }
@@ -422,11 +422,11 @@ namespace WeNeedMoreNoels
                             name = "EnablePVP",
                             skin_title = "",
                             checkbox_mode = 1,
-                            def = WNMNTools.EnablePVP ? 1 : 0,
+                            def = PolarisNoelsTools.EnablePVP ? 1 : 0,
                             Adesc_keys = TX.GetArray("Disabled", "Enabled"),
                             fnChanged = (_, _, i) =>
                             {
-                                WNMNTools.EnablePVP = i == 1;
+                                PolarisNoelsTools.EnablePVP = i == 1;
                                 return true;
                             }
                         });
@@ -447,12 +447,12 @@ namespace WeNeedMoreNoels
                                 title = TX.Get("multiplayer_enemy_title"),
                                 mn = 0,
                                 mx = 2,
-                                def = (int)WNMNTools.SyncType,
+                                def = (int)PolarisNoelsTools.SyncType,
                                 checkbox_mode = 2,
                                 Adesc_keys = TX.GetArray("multiplayer_enemy_starter", "multiplayer_enemy_smart", "multiplayer_enemy_independent"),
                                 fnChanged = (_, _, i) =>
                                 {
-                                    WNMNTools.SyncType = (EnemySyncType)i;
+                                    PolarisNoelsTools.SyncType = (EnemySyncType)i;
                                     return true;
                                 }
                             }, 150);
@@ -566,7 +566,7 @@ namespace WeNeedMoreNoels
 
         void OnPlayerSelect(aBtn B, Action<int> OnSelectedIndex)
         {
-            List<KeyValuePair<int, string>> btns = [.. WNMNTools.AllNicknames, new(0, TX.Get("Cancel"))];
+            List<KeyValuePair<int, string>> btns = [.. PolarisNoelsTools.AllNicknames, new(0, TX.Get("Cancel"))];
             UiBoxDesigner BxCmd = UiMenuMul.BxP;
             BxCmd.activate();
             IN.setZ(BxCmd.transform, BxR.transform.position.z - 1f);

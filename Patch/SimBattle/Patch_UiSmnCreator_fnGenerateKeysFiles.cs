@@ -2,7 +2,7 @@
 using nel.mgm.smncr;
 using System.Collections.Generic;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(UiSmnCreator), nameof(UiSmnCreator.fnGenerateKeysFiles))]
     public class Patch_UiSmnCreator_fnGenerateKeysFiles

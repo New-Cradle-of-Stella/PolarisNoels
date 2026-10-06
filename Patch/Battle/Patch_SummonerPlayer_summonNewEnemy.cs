@@ -2,7 +2,7 @@ using HarmonyLib;
 using nel;
 using nel.smnp;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(SummonerPlayer), nameof(SummonerPlayer.summonNewEnemy))]
     public class Patch_SummonerPlayer_summonNewEnemy

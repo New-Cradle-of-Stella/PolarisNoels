@@ -3,7 +3,7 @@ using ProtoBuf;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace WeNeedMoreNoels.DataStruct
+namespace PolarisNoels.DataStruct
 {
     [ProtoContract]
     public class UpdateNoelInfo
@@ -126,13 +126,20 @@ namespace WeNeedMoreNoels.DataStruct
         public string NickName;
         [ProtoMember(3)]
         public int PartyID;
+        [ProtoMember(4)]
+        public string MapKey;
+        [ProtoMember(5)]
+        public float PositionX;
+        [ProtoMember(6)]
+        public float PositionY;
     }
 
     [ProtoContract]
     public enum UpdatePeerType
     {
         Nickname,
-        Party
+        Party,
+        Map
     }
 
     [ProtoContract]

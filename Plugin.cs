@@ -4,9 +4,9 @@ using BepInEx.Unity.Mono;
 using HarmonyLib;
 using System;
 using System.Reflection;
-using WeNeedMoreNoels.Networking;
+using PolarisNoels.Networking;
 
-namespace WeNeedMoreNoels
+namespace PolarisNoels
 {
     [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
     public class Plugin : BaseUnityPlugin
@@ -19,6 +19,11 @@ namespace WeNeedMoreNoels
         {
             // Plugin startup logic
             Logger = base.Logger;
+            // 原生传输要先加载：插件目录不在 Windows DLL 搜索路径里。失败只禁用联机。
+            NetworkRuntime.BindPort = Config.Bind("Network", "BindPort", 0, "UDP 绑定端口，0 = 随机端口").Value;
+            NetworkRuntime.ConfiguredMaxPeers = Config.Bind("Network", "MaxPlayers", 5, "最大玩家数（含主机），2~8").Value;
+            NetworkRuntime.EnableStun = Config.Bind("Network", "EnableStun", true, "是否用 STUN 收集公网候选（关闭则只走内网/直连）").Value;
+            NetworkRuntime.PreloadNative();
             _harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
             PatchAllSafe();
 
@@ -34,12 +39,19 @@ namespace WeNeedMoreNoels
 
         public const string LOGO_PLUGIN =
             """
-            ██╗    ███╗   ███╗   ████╗   ██╗
-            ██║    ████╗  ████╗ ██████╗  ██║
-            ██║ █╗ ██╔██╗ ██╔████╔██╔██╗ ██║
-            ██║███╗██║╚██╗██║╚██╔╝██║╚██╗██║
-            ╚███╔███╔╝ ╚████║ ╚═╝ ██║ ╚████║
-             ╚══╝╚══╝   ╚═══╝     ╚═╝  ╚═══╝
+            ██████╗  ██████╗ ██╗      █████╗ ██████╗ ██╗███████╗
+            ██╔══██╗██╔═══██╗██║     ██╔══██╗██╔══██╗██║██╔════╝
+            ██████╔╝██║   ██║██║     ███████║██████╔╝██║███████╗
+            ██╔═══╝ ██║   ██║██║     ██╔══██║██╔══██╗██║╚════██║
+            ██║     ╚██████╔╝███████╗██║  ██║██║  ██║██║███████║
+            ╚═╝      ╚═════╝ ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚══════╝
+
+            ███╗   ██╗ ██████╗ ███████╗██╗     ███████╗
+            ████╗  ██║██╔═══██╗██╔════╝██║     ██╔════╝
+            ██╔██╗ ██║██║   ██║█████╗  ██║     ███████╗
+            ██║╚██╗██║██║   ██║██╔══╝  ██║     ╚════██║
+            ██║ ╚████║╚██████╔╝███████╗███████╗███████║
+            ╚═╝  ╚═══╝ ╚═════╝ ╚══════╝╚══════╝╚══════╝
             """;
 
         /// <summary>
@@ -66,9 +78,16 @@ namespace WeNeedMoreNoels
             }
         }
 
+        /// <summary>标题/游戏/加载三种状态都要 poll：原生事件不能因为场景切换而积压。</summary>
+        private void Update()
+        {
+            NetworkRuntime.Poll();
+        }
+
         private void OnDestroy()
         {
             StopAllCoroutines();
+            NetworkRuntime.Shutdown();
             _harmony?.UnpatchSelf();
         }
     }

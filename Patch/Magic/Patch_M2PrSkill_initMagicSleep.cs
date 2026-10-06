@@ -1,8 +1,8 @@
 ﻿using HarmonyLib;
 using nel;
-using WeNeedMoreNoels.SN;
+using PolarisNoels.SN;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     /// <summary>影子玩家的魔法由 ShadowNoelMagic 驱动，不允许自己进入休眠流程。</summary>
     [HarmonyPatch(typeof(M2PrSkill), nameof(M2PrSkill.initMagicSleep))]

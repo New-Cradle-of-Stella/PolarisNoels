@@ -1,8 +1,8 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using WeNeedMoreNoels.DataStruct;
+using PolarisNoels.DataStruct;
 
-namespace WeNeedMoreNoels
+namespace PolarisNoels
 {
     /// <summary>当前存活的所有 <see cref="NetEntity"/>。取代原来的 SyncHosts / SyncClients / peerClients。</summary>
     public static class EntityRegistry
@@ -26,6 +26,9 @@ namespace WeNeedMoreNoels
         {
             return entities.TryGetValue(id, out entity) && entity != null;
         }
+
+        public static List<NetEntity> GetAuthorities() => entities.Values
+            .Where(e => e != null && e.IsAuthority).ToList();
 
         /// <summary>是否还有存活的敌人副本（用于判断联机战斗是否结束）。</summary>
         public static bool HasEnemyReplica()

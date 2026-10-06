@@ -1,7 +1,7 @@
 using HarmonyLib;
 using nel;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(M2LpSummon), nameof(M2LpSummon.openSummoner))]
     public class Patch_M2LpSummon_openSummoner

@@ -1,8 +1,8 @@
 ﻿using HarmonyLib;
 using m2d;
-using WeNeedMoreNoels.SN;
+using PolarisNoels.SN;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(M2MoverPr), nameof(M2MoverPr.isEvadeO))]
     public class Patch_M2MoverPr_isEvadeO

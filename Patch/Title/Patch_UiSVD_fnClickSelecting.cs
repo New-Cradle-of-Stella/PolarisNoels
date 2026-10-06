@@ -2,7 +2,7 @@
 using nel;
 using XX;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(UiSVD), nameof(UiSVD.fnClickSelecting))]
     public class Patch_UiSVD_fnClickSelecting

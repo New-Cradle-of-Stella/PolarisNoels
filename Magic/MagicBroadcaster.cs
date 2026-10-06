@@ -1,18 +1,18 @@
 ﻿using nel;
-using WeNeedMoreNoels.DataStruct;
+using PolarisNoels.DataStruct;
 
-namespace WeNeedMoreNoels
+namespace PolarisNoels
 {
     /// <summary>本地玩家的魔法事件 -> 广播给其他玩家。只处理本地 PRNoel 的事件。</summary>
     public static class MagicBroadcaster
     {
         static void Send(NotifyNoelMagic magic)
         {
-            if (!DB.IsMultiplayer || WNMNTools.LocalID < 0)
+            if (!DB.IsMultiplayer || PolarisNoelsTools.LocalID < 0)
             {
                 return;
             }
-            EntityNet.SendEvent(EntityIds.ForPlayer(WNMNTools.LocalID), new EntityEvent
+            EntityNet.SendEvent(EntityIds.ForPlayer(PolarisNoelsTools.LocalID), new EntityEvent
             {
                 Type = EntityEventType.Magic,
                 Magic = magic

@@ -1,6 +1,6 @@
-using WeNeedMoreNoels.DataStruct;
+using PolarisNoels.DataStruct;
 
-namespace WeNeedMoreNoels
+namespace PolarisNoels
 {
     /// <summary>
     /// 实体同步模块：负责 Mover 上的某一块状态（位置/血量、魔法……）。

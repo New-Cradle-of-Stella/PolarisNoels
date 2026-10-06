@@ -1,6 +1,6 @@
 ﻿using nel;
 
-namespace WeNeedMoreNoels
+namespace PolarisNoels
 {
     public static class NetworkBootstrap
     {
@@ -11,13 +11,13 @@ namespace WeNeedMoreNoels
             {
                 return;
             }
-            if (!WNMNTools.PeerIngameInited)
+            if (!PolarisNoelsTools.PeerIngameInited)
             {
-                WNMNTools.InitNetworking(DB.InitConfig);
-                WNMNTools.PeerIngameInited = true;
+                PolarisNoelsTools.InitNetworking(DB.InitConfig);
+                PolarisNoelsTools.PeerIngameInited = true;
             }
             EntityFactory.AttachLocalPlayer(noel);
-            if (WNMNTools.LocalID != -1)
+            if (PolarisNoelsTools.LocalID != -1)
             {
                 LocalNickname.Apply();
             }

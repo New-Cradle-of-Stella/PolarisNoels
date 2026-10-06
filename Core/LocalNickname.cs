@@ -1,7 +1,7 @@
-using WeNeedMoreNoels.SN;
+using PolarisNoels.SN;
 using XX;
 
-namespace WeNeedMoreNoels
+namespace PolarisNoels
 {
     public static class LocalNickname
     {
@@ -11,11 +11,11 @@ namespace WeNeedMoreNoels
             string nickname;
             if (DB.InitConfig.InvisibleNickname)
             {
-                nickname = TX.Get("multiplayer_noel_nickname") + WNMNTools.LocalID.ToString();
+                nickname = TX.Get("multiplayer_noel_nickname") + PolarisNoelsTools.LocalID.ToString();
             }
             else
             {
-                nickname = DB.InitConfig.nickName == "" ? $"Nickname#{WNMNTools.LocalID}" : DB.InitConfig.nickName;
+                nickname = DB.InitConfig.nickName == "" ? $"Nickname#{PolarisNoelsTools.LocalID}" : DB.InitConfig.nickName;
             }
             ShadowNoelExtensions.GenerateMainPRNickname(nickname);
         }

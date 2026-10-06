@@ -1,7 +1,7 @@
 ﻿using nel;
 using UnityEngine;
 
-namespace WeNeedMoreNoels
+namespace PolarisNoels
 {
     /// <summary>一场联机战斗（召唤器）的开始与结束时的状态维护。</summary>
     public static class BattleSession
@@ -9,27 +9,28 @@ namespace WeNeedMoreNoels
         /// <summary>召唤器即将开启。返回 false 表示这场战斗已经开始过，应拦截。</summary>
         public static bool BeforeOpen(M2LpSummon summon)
         {
-            WNMNTools.TotalBattleNoelCount = WNMNTools.GetBattleNoelCounts(summon);
+            PolarisNoelsTools.TotalBattleNoelCount = PolarisNoelsTools.GetBattleNoelCounts(summon);
             return !DB.StartedBattleSummonerKeys.Contains(summon.key);
         }
 
         /// <summary>召唤器已开启：确定战斗发起者并通知其他玩家。</summary>
         public static void AfterOpen(M2LpSummon summon)
         {
-            if (WNMNTools.BattleStarterID == -1)
+            if (PolarisNoelsTools.BattleStarterID == -1)
             {
-                WNMNTools.BattleStarterID = WNMNTools.LocalID;
-                if (WNMNTools.SimBattleReady)
+                PolarisNoelsTools.BattleStarterID = PolarisNoelsTools.LocalID;
+                if (PolarisNoelsTools.SimBattleReady)
                 {
-                    WNMNTools.SendSimBattleStartToAllPeers(WNMNTools.LocalID);
+                    PolarisNoelsTools.SendSimBattleStartToAllPeers(PolarisNoelsTools.LocalID);
                 }
                 else
                 {
-                    WNMNTools.SendBattleStartToAllPeers(summon.key, WNMNTools.LocalID);
+                    PolarisNoelsTools.SendBattleStartToAllPeers(summon.key, PolarisNoelsTools.LocalID);
                 }
             }
-            WNMNTools.BattleStartT = Time.time;
+            PolarisNoelsTools.BattleStartT = Time.time;
             DB.IsInBattle = true;
+            DB.CurSummoner = summon;
             DB.CurEnemies.Clear();
             DB.StartedBattleSummonerKeys.Add(summon.key);
         }
@@ -39,16 +40,16 @@ namespace WeNeedMoreNoels
         {
             if (defeated)
             {
-                WNMNTools.SendBattleEndToAllPeers(summon.key, WNMNTools.LocalID);
+                PolarisNoelsTools.SendBattleEndToAllPeers(summon.key, PolarisNoelsTools.LocalID);
                 DB.IsInBattle = false;
             }
             EntityRegistry.ForgetEnemies();
             DB.StartedBattleSummonerKeys.Remove(summon.key);
-            WNMNTools.BattleStarterID = -1;
-            WNMNTools.SimBattleSyncList.Clear();
-            WNMNTools.SimBattleReadyList.Clear();
-            WNMNTools.SimBattleSyncHost = -1;
-            WNMNTools.SimBattleReady = false;
+            PolarisNoelsTools.BattleStarterID = -1;
+            PolarisNoelsTools.SimBattleSyncList.Clear();
+            PolarisNoelsTools.SimBattleReadyList.Clear();
+            PolarisNoelsTools.SimBattleSyncHost = -1;
+            PolarisNoelsTools.SimBattleReady = false;
         }
     }
 }

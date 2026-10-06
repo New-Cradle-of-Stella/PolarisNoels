@@ -3,7 +3,7 @@ using nel;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(MgFireBall), nameof(MgFireBall.fnManipulateFireBall))]
     public class Patch_MgFireBall_fnManipulateFireBall

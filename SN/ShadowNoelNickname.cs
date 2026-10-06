@@ -4,7 +4,7 @@ using System.Collections;
 using UnityEngine;
 using XX;
 
-namespace WeNeedMoreNoels.SN
+namespace PolarisNoels.SN
 {
     public class ShadowNoelNickname : M2Attackable
     {

@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using nel;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(NelItemManager), nameof(NelItemManager.getItem))]
     public class Patch_NelItemManager_getItem
@@ -9,12 +9,12 @@ namespace WeNeedMoreNoels.Patch
         [HarmonyPostfix]
         static void Postfix(NelItem Itm, int count, int grade)
         {
-            if (!DB.IsMultiplayer || WNMNTools.ApplyingRemoteChange)
+            if (!DB.IsMultiplayer || PolarisNoelsTools.ApplyingRemoteChange)
             {
                 return;
             }
             string id = Itm.key;
-            WNMNTools.SendGetItemToAllPeers(id, count, grade);
+            PolarisNoelsTools.SendGetItemToAllPeers(id, count, grade);
         }
     }
 }

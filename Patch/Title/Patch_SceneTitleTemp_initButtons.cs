@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection.Emit;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(nel.title.SceneTitleTemp), "initButtons")]
     public class Patch_SceneTitleTemp_initButtons

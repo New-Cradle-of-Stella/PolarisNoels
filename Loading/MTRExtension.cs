@@ -5,10 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using WeNeedMoreNoels.DataStruct;
+using PolarisNoels.DataStruct;
 using XX;
 
-namespace WeNeedMoreNoels
+namespace PolarisNoels
 {
     public static class MTRExtension
     {
@@ -40,15 +40,15 @@ namespace WeNeedMoreNoels
 
         public static PrPoseContainer PConNoelIAnim;
 
-        public const string LOCALIZATION_FILE_NAME = "_wnmn_localization";
+        public const string LOCALIZATION_FILE_NAME = "_polarisnoels_localization";
 
         static string localPicPath;
 
         public static void Load()
         {
-            Plugin.Logger.LogInfo("start loading WNMN resources..");
+            Plugin.Logger.LogInfo("start loading PolarisNoels resources..");
             string assetPath = Path.GetFullPath(Application.streamingAssetsPath);
-            string assetOriginPath = Path.Combine(assetPath, "WNMNResources\\");
+            string assetOriginPath = Path.Combine(assetPath, "PolarisNoelsResources\\");
             string localPxlPath = Path.Combine(assetOriginPath, "pxls\\");
             string localPicPath = Path.Combine(assetOriginPath, "pics\\");
             string localLocalizationPath = Path.Combine(assetPath, "localization\\");
@@ -59,7 +59,7 @@ namespace WeNeedMoreNoels
             string L_krPath = Path.Combine(localLocalizationPath, "ko-kr\\");
             string L_thPath = Path.Combine(localLocalizationPath, "th\\");
             string pluginFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "BepInEx", "plugins");
-            string pluginPath = Path.Combine(pluginFolderPath, "WNMN");
+            string pluginPath = Path.Combine(pluginFolderPath, "PolarisNoels");
             string pluginPxlPath = Path.Combine(pluginPath, "pxls\\");
             string pluginPicPath = Path.Combine(pluginPath, "pics\\");
             string pluginResPath = Path.Combine(pluginPath, "resources\\");
@@ -103,7 +103,7 @@ namespace WeNeedMoreNoels
             File.Copy(jpPath + $"_{LOCALIZATION_FILE_NAME}.txt", L_jpPath + $"_{LOCALIZATION_FILE_NAME}.txt", true);
             File.Copy(krPath + $"ko-kr{LOCALIZATION_FILE_NAME}.txt", L_krPath + $"ko-kr{LOCALIZATION_FILE_NAME}.txt", true);
             File.Copy(thPath + $"th{LOCALIZATION_FILE_NAME}.txt", L_thPath + $"th{LOCALIZATION_FILE_NAME}.txt", true);
-            Plugin.Logger.LogInfo("WNMN resources load complete!");
+            Plugin.Logger.LogInfo("PolarisNoels resources load complete!");
             MTRExtension.localPicPath = localPicPath;
         }
 
@@ -143,14 +143,14 @@ namespace WeNeedMoreNoels
                 int num2 = pxlPath[i].Length;
                 for (int j = 0; j < num2; j++)
                 {
-                    string text = "WNMNResources/pxls/" + pxlPath[i][j] + ".pxls";
+                    string text = "PolarisNoelsResources/pxls/" + pxlPath[i][j] + ".pxls";
                     MTIOneImage mtioneImage;
                     PxlCharacter pxlCharacter = MTRX.loadMtiPxc(out mtioneImage, pxlPath[i][j], text, "_", true, true, true);
                     instance.AddTicketInner(pxlCharacter, mtioneImage, 1);
                 }
             }
             CaneManager.reloadScript(false);
-            return new PrPoseContainer(name, "WNMNResources/pxls/", "_", delegate (PxlFrame F, float rCLENB)
+            return new PrPoseContainer(name, "PolarisNoelsResources/pxls/", "_", delegate (PxlFrame F, float rCLENB)
             {
                 float num3;
                 float num4;

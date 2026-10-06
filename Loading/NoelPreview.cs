@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
-using WeNeedMoreNoels.DataStruct;
+using PolarisNoels.DataStruct;
 
-namespace WeNeedMoreNoels
+namespace PolarisNoels
 {
     public class NoelPreview : MonoBehaviour
     {

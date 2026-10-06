@@ -2,7 +2,7 @@
 using nel;
 using nel.gm;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(UiGameMenu), nameof(UiGameMenu.Awake))]
     public class Patch_UiGameMenu_Awake

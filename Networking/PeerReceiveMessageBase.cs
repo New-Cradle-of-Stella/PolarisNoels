@@ -1,13 +1,13 @@
-﻿using WeNeedMoreNoels.DataStruct;
+﻿using PolarisNoels.DataStruct;
 
-namespace WeNeedMoreNoels.Networking
+namespace PolarisNoels.Networking
 {
     public abstract class PeerReceiveMessageBase
     {
-        public abstract bool CheckMessage(WNMNPeerMessage message);
+        public abstract bool CheckMessage(PolarisNoelsPeerMessage message);
 
-        public abstract void ReceiveMessage(WNMNPeerMessage message);
+        public abstract void ReceiveMessage(PolarisNoelsPeerMessage message);
 
-        public abstract string ToMessageString(WNMNPeerMessage message);
+        public abstract string ToMessageString(PolarisNoelsPeerMessage message);
     }
 }

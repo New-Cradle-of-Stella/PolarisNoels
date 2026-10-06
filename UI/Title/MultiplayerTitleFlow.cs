@@ -1,23 +1,21 @@
-﻿using LiteNetLib;
-using WeNeedMoreNoels.Networking;
-using nel;
+﻿using nel;
 using nel.title;
 using System.Collections;
-using System.IO;
-using System.Linq;
-using System.Net.NetworkInformation;
+using PolarisNoels.CSNetworking;
+using PolarisNoels.DataStruct;
+using PolarisNoels.Networking;
 using UnityEngine;
-using WeNeedMoreNoels.DataStruct;
 using XX;
 
-namespace WeNeedMoreNoels
+namespace PolarisNoels
 {
-    /// <summary>标题界面的联机流程：主机/客户端设置面板、存档同步、连接超时与主机关闭提示。</summary>
+    /// <summary>
+    /// 标题界面的联机流程：房间码入房、存档同步进度、连接超时与主机关闭提示。
+    /// 传输层在标题界面就建立，进入游戏后沿用同一条连接（不再走「先断开再建 P2P」的老路）。
+    /// </summary>
     public static class MultiplayerTitleFlow
     {
         static UiBoxDesigner BxHC;
-
-        static UiBoxDesigner BxHBP;
 
         static UiBoxDesigner BxCC;
 
@@ -25,45 +23,50 @@ namespace WeNeedMoreNoels
 
         static UiBoxDesigner BxHCI;
 
+        static UiBoxDesigner BxHRC;
+
+        static UiBoxDesigner BxWait;
+
+        static FillBlock RoomCodeText;
+
+        static FillBlock WaitText;
+
+        static FillBlock TimeoutText;
+
         static aBtn submit;
 
         static NoelType type;
 
         static ColorNoelColor color;
 
-        static LabeledInputField IpInput;
+        static LabeledInputField RoomCodeInput;
+
+        static LabeledInputField DirectIpInput;
 
         static BtnContainerNumCounter<aBtnNumCounter> PortCon;
 
         static LabeledInputField NickNameInput;
 
-        static NetManager client;
-
         static SceneTitleTemp stt;
 
         static bool InvisibleNickname;
 
-        static aBtn BtnCC;
-
-        static bool Connected;
-
         /// <returns>true 表示继续执行原版 runIRD</returns>
         public static bool OnRunIRD(SceneTitleTemp instance, ref bool __result)
         {
-            client?.PollEvents();
             stt = instance;
             if (BxCmd == null && stt.BxCon != null)
             {
                 BxCmd = stt.BxCon.Create("ColN", 0f, 0f, 200f, 200f, 0, 0f, UiBoxDesignerFamily.MASKTYPE.BOX);
             }
-            if (DB.WNMNHostClosed)
+            if (DB.PolarisNoelsHostClosed)
             {
                 if (stt.BxCon is null)
                 {
                     __result = true;
                     return true;
                 }
-                DB.WNMNHostClosed = false;
+                DB.PolarisNoelsHostClosed = false;
                 BxHCI = stt.BxCon.Create("hostClosedInfo", 0f, 0f, 380f, IN.h - 620f, 0, 0f, UiBoxDesignerFamily.MASKTYPE.BOX);
                 BxHCI.Focusable(false, false, null);
                 BxHCI.Clear();
@@ -73,9 +76,9 @@ namespace WeNeedMoreNoels
                     size = 40,
                     alignx = ALIGN.CENTER,
                     aligny = ALIGNY.MIDDLE,
-                    text = DB.WNMNHostKicked ? TX.Get("multiplayer_host_kicked") : TX.Get("multiplayer_host_closed")
+                    text = DB.PolarisNoelsHostKicked ? TX.Get("multiplayer_host_kicked") : TX.Get("multiplayer_host_closed")
                 });
-                DB.WNMNHostKicked = false;
+                DB.PolarisNoelsHostKicked = false;
                 BxHCI.activate();
                 BxHCI.positionD(0f, 40f, 3, 50f);
                 BxHCI.margin_in_tb = 30f;
@@ -94,72 +97,42 @@ namespace WeNeedMoreNoels
                 __result = true;
                 return false;
             }
-            if (stt.state == SceneTitleTemp.STATE.SVD_SELECT && DB.WNMNHostSelectSVD)
+            UpdateLiveTexts();
+            if (stt.state == SceneTitleTemp.STATE.SVD_SELECT && DB.PolarisNoelsHostSelectSVD)
             {
                 if (stt.EditSvd is not null && stt.EditSvd.ui_state == UiSVD.STATE.LOAD_SUCCESS)
                 {
                     bool ignore_svd_cfg = stt.EditSvd.ignore_svd_cfg;
                     SVD.sFile file = SVD.GetFileB(UiSVD.last_focused_bindex, true);
-                    byte[] buffer = File.ReadAllBytes(Path.Combine(SVD.getDir(), SVD.getFileName(file)));
+                    byte[] buffer = System.IO.File.ReadAllBytes(System.IO.Path.Combine(SVD.getDir(), SVD.getFileName(file)));
                     DB.SyncSaveContentBuffer = buffer;
                     stt.EditSvd.deactivateDesigner();
                     stt.BxR.deactivate();
                     stt.BxDesc.deactivate();
                     BxHC = stt.BxCon.Create("hostConfirm", 0f, 0f, 620f, IN.h - 360f, 0, 0f, UiBoxDesignerFamily.MASKTYPE.BOX);
                     BxHC.Clear();
-                    BxHBP = stt.BxCon.Create("hostBusyPort", 0f, 0f, 380f, (IN.h - 620f) * 1.5f, 0, 0f, UiBoxDesignerFamily.MASKTYPE.BOX);
-                    IN.setZ(BxHBP.transform, BxHC.transform.position.z - 1f);
-                    BxHBP.alignx = ALIGN.CENTER;
-                    BxHBP.addP(new()
-                    {
-                        TxCol = ColorDefault,
-                        size = 40,
-                        text = TX.Get("multiplayer_busy_port")
-                    });
-                    BxHBP.Br();
-                    BxHBP.alignx = ALIGN.CENTER;
-                    BxHBP.addButton(new()
-                    {
-                        title = TX.Get("Submit"),
-                        fnClick = B =>
-                        {
-                            BxHBP.deactivate();
-                            submit.Select(true);
-                            return true;
-                        }
-                    });
-                    BxHBP.Focusable(true, true);
-                    BxHBP.deactivate();
                     CreateUI(BxHC, b =>
                     {
-                        //端口检查
-                        IPGlobalProperties properties = IPGlobalProperties.GetIPGlobalProperties();
-                        var busyPort = properties.GetActiveTcpListeners().Any(x => x.Port == PortCon.cnt_val);
-                        busyPort |= properties.GetActiveUdpListeners().Any(x => x.Port == PortCon.cnt_val);
-                        if (busyPort)
-                        {
-                            BxHBP.Focus();
-                            BxHBP.activate();
-                            return true;
-                        }
                         BxCmd?.deactivate();
-                        WNMNTools.NetworkConfig config = new()
+                        PolarisNoelsTools.NetworkConfig config = new()
                         {
                             Type = NetWorkType.Host,
                             ip = "",
-                            port = PortCon.cnt_val,
+                            port = 0,
                             nickName = NickNameInput.text,
                             NoelType = type,
                             NoelColor = color,
                             InvisibleNickname = InvisibleNickname
                         };
                         DB.InitConfig = config;
+                        if (!NetworkRuntime.StartHost(config))
+                        {
+                            ShowTimeout(TX.Get("multiplayer_native_missing"));
+                            return true;
+                        }
                         BxHC.deactivate();
                         BxHC = null;
-                        COOK.clear(false);
-                        COOK.save_failure_announce = "";
-                        COOK.setLoadTarget(file, ignore_svd_cfg);
-                        stt.changeState(SceneTitleTemp.STATE.START_GAME);
+                        CreateHostRoomCodeBox(stt, file, ignore_svd_cfg);
                         return true;
                     }, b =>
                     {
@@ -182,7 +155,7 @@ namespace WeNeedMoreNoels
             {
                 BxCmd?.deactivate();
             }
-            if (BxHCI is not null || BxHC is not null || BxCC is not null || DB.WNMNClientTransferNotComplete)
+            if (BxHCI is not null || BxHC is not null || BxCC is not null || BxHRC is not null || BxWait is not null || DB.PolarisNoelsClientTransferNotComplete)
             {
                 __result = true;
                 return false;
@@ -190,16 +163,87 @@ namespace WeNeedMoreNoels
             return true;
         }
 
+        /// <summary>房间码/进度这些只有在设计师存在时才能刷新。</summary>
+        static void UpdateLiveTexts()
+        {
+            if (RoomCodeText != null && BxHRC != null)
+            {
+                RoomCodeText.text_content = TX.Get("multiplayer_room_code") + ": " + (NetworkRuntime.Transport?.RoomCode ?? TX.Get("multiplayer_room_code_collecting")) + NatText();
+            }
+            if (WaitText != null && BxWait != null)
+            {
+                ClientSession session = NetworkRuntime.Client;
+                string state = session == null
+                    ? TX.Get("multiplayer_waiting")
+                    : !session.JoinAccepted ? TX.Get("multiplayer_joining")
+                    : !session.HostHandshakeDone ? TX.Get("multiplayer_waiting_host")
+                    : TX.Get("multiplayer_receiving_save") + " " + session.SaveProgressText();
+                WaitText.text_content = state + NatText();
+            }
+        }
+        static string NatText() => string.IsNullOrEmpty(NetworkRuntime.NatType) ? "" : "\nNAT: " + NetworkRuntime.NatType;
+
+        static void CreateHostRoomCodeBox(SceneTitleTemp stt, SVD.sFile file, bool ignore_svd_cfg)
+        {
+            BxHRC = stt.BxCon.Create("hostRoomCode", 0f, 0f, 620f, IN.h - 420f, 0, 0f, UiBoxDesignerFamily.MASKTYPE.BOX);
+            BxHRC.Clear();
+            BxHRC.alignx = ALIGN.CENTER;
+            BxHRC.addP(new()
+            {
+                TxCol = ColorDefault,
+                size = 26f,
+                text = TX.Get("multiplayer_room_code_hint")
+            });
+            BxHRC.Br();
+            RoomCodeText = BxHRC.addP(new()
+            {
+                TxCol = ColorDefault,
+                size = 24f,
+                text = TX.Get("multiplayer_room_code") + ": " + TX.Get("multiplayer_room_code_collecting")
+            });
+            BxHRC.Br();
+            BxHRC.addButton(new()
+            {
+                title = TX.Get("multiplayer_copy_room_code"),
+                fnClick = B =>
+                {
+                    string code = NetworkRuntime.Transport?.RoomCode;
+                    if (!string.IsNullOrEmpty(code))
+                    {
+                        GUIUtility.systemCopyBuffer = code;
+                    }
+                    return true;
+                }
+            });
+            BxHRC.Br();
+            BxHRC.addButton(new()
+            {
+                title = TX.Get("Submit"),
+                fnClick = B =>
+                {
+                    EnterGame(stt, file, ignore_svd_cfg);
+                    return true;
+                }
+            });
+            BxHRC.Focusable(true, true, null);
+            BxHRC.Focus();
+            BxHRC.use_scroll = false;
+            BxHRC.init();
+            stt.DsBlack.Clear();
+            stt.DsBlack.alpha = 0f;
+            stt.TxOnePoint.text_content = "";
+        }
+
         public static void AfterRunIRD(SceneTitleTemp stt)
         {
-            if (DB.WNMNEnterNetworkTypeSelected)
+            if (DB.PolarisNoelsEnterNetworkTypeSelected)
             {
-                DB.WNMNEnterNetworkTypeSelected = false;
+                DB.PolarisNoelsEnterNetworkTypeSelected = false;
                 stt.BxDiff.deactivate();
-                if (DB.WNMNEnterNetworkType == NetWorkType.Host)
+                if (DB.PolarisNoelsEnterNetworkType == NetWorkType.Host)
                 {
                     stt.changeState(SceneTitleTemp.STATE.SVD_SELECT);
-                    DB.WNMNHostSelectSVD = true;
+                    DB.PolarisNoelsHostSelectSVD = true;
                 }
                 else
                 {
@@ -207,75 +251,39 @@ namespace WeNeedMoreNoels
                     BxCC.Clear();
                     CreateUI(BxCC, b =>
                     {
-                        BxCTO = stt.BxCon.Create("clientTimeOut", 0f, 0f, 380f, (IN.h - 620f) * 1.5f, 0, 0f, UiBoxDesignerFamily.MASKTYPE.BOX);
-                        IN.setZ(BxCTO.transform, BxCC.transform.position.z - 1f);
-                        BxCTO.alignx = ALIGN.CENTER;
-                        BxCTO.addP(new()
+                        string roomCode = RoomCodeInput.text?.Trim();
+                        string directHost = DirectIpInput.text?.Trim();
+                        bool useDirect = !string.IsNullOrEmpty(directHost);
+                        if (string.IsNullOrEmpty(roomCode) && !useDirect)
                         {
-                            TxCol = ColorDefault,
-                            size = 40,
-                            text = TX.Get("multiplayer_connect_timeout")
-                        });
-                        BxCTO.Br();
-                        BxCTO.alignx = ALIGN.CENTER;
-                        BxCTO.addButton(new()
+                            ShowTimeout(TX.Get("multiplayer_join_bad_code"));
+                            return true;
+                        }
+                        BxCmd?.deactivate();
+                        PolarisNoelsTools.NetworkConfig config = new()
                         {
-                            title = TX.Get("Submit"),
-                            fnClick = B =>
-                            {
-                                BxCTO.deactivate();
-                                submit.SetLocked(false);
-                                submit.Select(true);
-                                return true;
-                            }
-                        });
-                        BxCTO.Focusable(true, true);
-                        BxCTO.deactivate();
+                            Type = NetWorkType.Client,
+                            ip = useDirect ? directHost : "",
+                            port = useDirect ? PortCon.cnt_val : 0,
+                            nickName = NickNameInput.text,
+                            NoelType = type,
+                            NoelColor = color,
+                            InvisibleNickname = InvisibleNickname
+                        };
+                        DB.InitConfig = config;
+                        DB.PolarisNoelsClientTransferNotComplete = true;
                         BtnCC = b;
                         b.SetLocked(true);
-                        EventBasedNetListener listener = new();
-                        client = new(listener);
-                        NetTuning.Apply(client);
-                        Connected = false;
-                        transferConnectedAt = -1f;
-                        transferDropped = false;
-                        listener.PeerConnectedEvent += _ => transferConnectedAt = Time.time;
-                        listener.PeerDisconnectedEvent += (_, _) => transferDropped = !Connected;
-                        listener.NetworkReceiveEvent += (peer, reader, deliveryMethod) =>
+                        if (!NetworkRuntime.StartClient(config, roomCode, useDirect ? directHost : null, useDirect ? PortCon.cnt_val : 0))
                         {
-                            BxCmd?.deactivate();
-                            WNMNTools.NetworkConfig config = new()
-                            {
-                                Type = NetWorkType.Client,
-                                ip = IpInput.text,
-                                port = PortCon.cnt_val,
-                                nickName = NickNameInput.text,
-                                NoelType = type,
-                                NoelColor = color,
-                                InvisibleNickname = InvisibleNickname
-                            };
-                            DB.InitConfig = config;
-                            Plugin.Logger.LogInfo("Client received sync save data.");
-                            byte[] receivedData = new byte[reader.UserDataSize];
-                            reader.GetBytes(receivedData, reader.UserDataSize);
-                            File.WriteAllBytes(SVD.getDir() + "\\" + DB.SYNC_FILE_NAME, SaveTransfer.Unpack(receivedData));
-                            SVD.sFile file = new(-2, true);//-2为同步存档
-                            BxCC.deactivate();
-                            BxCC = null;
-                            DB.WNMNClientTransferNotComplete = false;
-                            client.DisconnectAll();
-                            client.Stop();
-                            COOK.clear(false);
-                            COOK.save_failure_announce = "";
-                            COOK.setLoadTarget(file, true);
-                            stt?.changeState(SceneTitleTemp.STATE.START_GAME);
-                            reader.Recycle();
-                            Connected = true;
-                        };
-                        client.Start();
-                        client.Connect(IpInput.text, PortCon.cnt_val + 1, DB.TRANSFER_ACCESS_KEY);
-                        Plugin.PluginInstance.StartCoroutine(CheckTimeout(client));
-                        Plugin.Logger.LogInfo($"Starting connect {IpInput.text}:{PortCon.cnt_val}");
+                            DB.PolarisNoelsClientTransferNotComplete = false;
+                            ShowTimeout(TX.Get("multiplayer_native_missing"));
+                            return true;
+                        }
+                        BxCC.deactivate();
+                        BxCC = null;
+                        CreateClientWaitBox(stt);
+                        Plugin.PluginInstance.StartCoroutine(WaitForReady(stt));
                         return true;
                     }, b =>
                     {
@@ -295,38 +303,176 @@ namespace WeNeedMoreNoels
             }
         }
 
-        /// <summary>建立连接阶段的超时。</summary>
-        const float ConnectTimeout = 10f;
-
-        /// <summary>已连上主机后，等待存档传完的超时。存档较大 + 高延迟时传输会很慢，所以给得很宽松。</summary>
-        const float TransferTimeout = 90f;
-
-        static float transferConnectedAt = -1f;
-
-        static bool transferDropped;
-
-        static IEnumerator CheckTimeout(NetManager client)
+        static void CreateClientWaitBox(SceneTitleTemp stt)
         {
-            float startedAt = Time.time;
-            while (!Connected && !transferDropped)
+            BxWait = stt.BxCon.Create("clientWaiting", 0f, 0f, 620f, IN.h - 420f, 0, 0f, UiBoxDesignerFamily.MASKTYPE.BOX);
+            BxWait.Clear();
+            BxWait.alignx = ALIGN.CENTER;
+            BxWait.addP(new()
             {
-                bool linked = transferConnectedAt >= 0f;
-                float elapsed = Time.time - (linked ? transferConnectedAt : startedAt);
-                if (elapsed > (linked ? TransferTimeout : ConnectTimeout))
+                TxCol = ColorDefault,
+                size = 26f,
+                text = TX.Get("multiplayer_waiting")
+            });
+            BxWait.Br();
+            WaitText = BxWait.addP(new()
+            {
+                TxCol = ColorDefault,
+                size = 22f,
+                text = TX.Get("multiplayer_joining")
+            });
+            BxWait.Br();
+            BxWait.addP(new()
+            {
+                TxCol = ColorDefault,
+                size = 18f,
+                text = TX.Get("multiplayer_room_code_no_rejoin_hint")
+            });
+            BxWait.Br();
+            BxWait.addButton(new()
+            {
+                title = TX.Get("Cancel"),
+                fnClick = B =>
                 {
-                    break;
+                    CancelClientWait(stt);
+                    return true;
+                }
+            });
+            BxWait.Focusable(true, true, null);
+            BxWait.Focus();
+            BxWait.use_scroll = false;
+            BxWait.init();
+            stt.DsBlack.Clear();
+            stt.DsBlack.alpha = 0f;
+            stt.TxOnePoint.text_content = "";
+        }
+
+        static aBtn BtnCC;
+
+        /// <summary>建立连接阶段的超时。</summary>
+        const float ConnectTimeout = 60f;
+
+        /// <summary>已受理入房后，等待握手 + 存档传完的超时。存档数 MB + 高延迟时给得很宽松。</summary>
+        const float TransferTimeout = 120f;
+
+        static IEnumerator WaitForReady(SceneTitleTemp stt)
+        {
+            float linkAt = -1f;
+            float startedAt = Time.time;
+            while (true)
+            {
+                ClientSession session = NetworkRuntime.Client;
+                if (session == null)
+                {
+                    FailClientWait(stt, TX.Get("multiplayer_connect_timeout"));
+                    yield break;
+                }
+                if (session.Ready)
+                {
+                    EnterGame(stt, new SVD.sFile(-2, true), true);
+                    yield break;
+                }
+                if (session.LastJoinError > 0)
+                {
+                    FailClientWait(stt, JoinErrorText(session.LastJoinError) + NatText());
+                    yield break;
+                }
+                if (session.JoinAccepted && linkAt < 0f)
+                {
+                    linkAt = Time.time;
+                }
+                float elapsed = Time.time - (linkAt >= 0f ? linkAt : startedAt);
+                if (elapsed > (linkAt >= 0f ? TransferTimeout : ConnectTimeout))
+                {
+                    FailClientWait(stt, TX.Get("multiplayer_connect_timeout"));
+                    yield break;
                 }
                 yield return null;
             }
-            if (!Connected)
-            {
-                client.Stop();
-                BxCTO.activate();
-                BxCTO.Focus();
-            }
         }
 
-        static void CreateUI(UiBoxDesigner designer, FnBtnBindings submit, FnBtnBindings cancel, bool isHost, out aBtn submitBtn)
+        static string JoinErrorText(int code) => (NetJoinError)code switch
+        {
+            NetJoinError.BadCode => TX.Get("multiplayer_join_bad_code"),
+            NetJoinError.PunchTimeout => TX.Get("multiplayer_join_punch_timeout"),
+            NetJoinError.HandshakeFailed => TX.Get("multiplayer_join_handshake_failed"),
+            NetJoinError.RoomFull => TX.Get("multiplayer_join_room_full"),
+            _ => TX.Get("multiplayer_connect_timeout")
+        };
+
+        static void CancelClientWait(SceneTitleTemp stt)
+        {
+            DB.PolarisNoelsClientTransferNotComplete = false;
+            DB.InitConfig = null;
+            NetworkRuntime.Shutdown();
+            BxWait?.deactivate();
+            BxWait = null;
+            WaitText = null;
+            BtnCC?.SetLocked(false);
+            stt.changeState(SceneTitleTemp.STATE.TOP);
+        }
+
+        static void FailClientWait(SceneTitleTemp stt, string reason)
+        {
+            Plugin.Logger.LogWarning($"client join failed: {reason}");
+            CancelClientWait(stt);
+            ShowTimeout(reason);
+        }
+
+        static void ShowTimeout(string text)
+        {
+            if (BxCTO == null)
+            {
+                BxCTO = stt.BxCon.Create("clientTimeOut", 0f, 0f, 380f, (IN.h - 620f) * 1.5f, 0, 0f, UiBoxDesignerFamily.MASKTYPE.BOX);
+                BxCTO.alignx = ALIGN.CENTER;
+                TimeoutText = BxCTO.addP(new()
+                {
+                    TxCol = ColorDefault,
+                    size = 40,
+                    text = text
+                });
+                BxCTO.Br();
+                BxCTO.alignx = ALIGN.CENTER;
+                BxCTO.addButton(new()
+                {
+                    title = TX.Get("Submit"),
+                    fnClick = B =>
+                    {
+                        BxCTO.deactivate();
+                        BxCTO = null;
+                        TimeoutText = null;
+                        submit?.SetLocked(false);
+                        submit?.Select(true);
+                        return true;
+                    }
+                });
+                BxCTO.Focusable(true, true);
+            }
+            else if (TimeoutText != null)
+            {
+                TimeoutText.text_content = text;
+            }
+            BxCTO.activate();
+            BxCTO.Focus();
+        }
+
+        /// <summary>标题 → 游戏：写档与加载目标在这里落地，连接不断开。</summary>
+        static void EnterGame(SceneTitleTemp stt, SVD.sFile file, bool ignore_svd_cfg)
+        {
+            DB.PolarisNoelsClientTransferNotComplete = false;
+            RoomCodeText = null;
+            WaitText = null;
+            BxHRC?.deactivate();
+            BxHRC = null;
+            BxWait?.deactivate();
+            BxWait = null;
+            COOK.clear(false);
+            COOK.save_failure_announce = "";
+            COOK.setLoadTarget(file, ignore_svd_cfg);
+            stt.changeState(SceneTitleTemp.STATE.START_GAME);
+        }
+
+        static void CreateUI(UiBoxDesigner designer, FnBtnBindings submitFn, FnBtnBindings cancel, bool isHost, out aBtn submitBtn)
         {
             designer.selectable_loop = 3;
             designer.alignx = ALIGN.CENTER;
@@ -346,29 +492,35 @@ namespace WeNeedMoreNoels
                 designer.addP(new()
                 {
                     TxCol = ColorDefault,
-                    size = 30f,
-                    text = TX.Get("multiplayer_host_port")
+                    size = 22f,
+                    text = TX.Get("multiplayer_room_code_hint")
                 });
-                designer.addP(new()
-                {
-                    text = " "
-                });
-                PortCon = designer.addNumCounterT<aBtnNumCounter>(new()
-                {
-                    h = 30f,
-                    digit = 5,
-                    maxval = 99999
-                });
-                PortCon.Get(0).setNaviL(NickNameInput, false, true);
             }
             else
             {
-                IpInput = designer.addInput(new()
+                designer.addP(new()
+                {
+                    TxCol = ColorDefault,
+                    size = 22f,
+                    text = TX.Get("multiplayer_room_code")
+                });
+                RoomCodeInput = designer.addInput(new()
+                {
+                    h = 30f,
+                    label = TX.Get("multiplayer_room_code") + ":"
+                });
+                designer.Br();
+                designer.addP(new()
+                {
+                    TxCol = ColorDefault,
+                    size = 18f,
+                    text = TX.Get("multiplayer_direct_hint")
+                });
+                DirectIpInput = designer.addInput(new()
                 {
                     h = 30f,
                     label = "IP:"
                 });
-                IpInput.text = "localhost";
                 designer.addP(new()
                 {
                     TxCol = ColorDefault,
@@ -381,10 +533,12 @@ namespace WeNeedMoreNoels
                     digit = 5,
                     maxval = 65535
                 });
-                IpInput.setNaviR(PortCon.Get(0), false, true);
-                PortCon.Get(0).setNaviL(IpInput, false, true);
+                PortCon.setValue(47210);
+                RoomCodeInput.setNaviR(DirectIpInput, false, true);
+                DirectIpInput.setNaviL(RoomCodeInput, false, true);
+                DirectIpInput.setNaviR(PortCon.Get(0), false, true);
+                PortCon.Get(0).setNaviL(DirectIpInput, false, true);
             }
-            PortCon.setValue(47210);
             designer.Br();
             designer.alignx = ALIGN.CENTER;
             designer.addP(new()
@@ -397,10 +551,12 @@ namespace WeNeedMoreNoels
             {
                 h = 20f
             });
-            PortCon.Get(4).setNaviR(NickNameInput, false, true);
-            NickNameInput.setNaviT(PortCon.Get(0));
+            if (!isHost)            {
+                PortCon.Get(4).setNaviR(NickNameInput, false, true);
+                NickNameInput.setNaviT(RoomCodeInput);
+            }
             designer.Br();
-            designer.alignx = ALIGN.CENTER; 
+            designer.alignx = ALIGN.CENTER;
             designer.addP(new()
             {
                 TxCol = ColorDefault,
@@ -456,7 +612,7 @@ namespace WeNeedMoreNoels
                 title = "&&Submit",
                 w = btnW,
                 h = btnH,
-                fnClick = submit
+                fnClick = submitFn
             });
             designer.addP(new()
             {

@@ -1,7 +1,7 @@
-using WeNeedMoreNoels.DataStruct;
-using WeNeedMoreNoels.SN;
+using PolarisNoels.DataStruct;
+using PolarisNoels.SN;
 
-namespace WeNeedMoreNoels
+namespace PolarisNoels
 {
     /// <summary>
     /// 玩家模块。
@@ -30,7 +30,7 @@ namespace WeNeedMoreNoels
             // 快照写入玩家记录，由 UpdateAllNoels 按所在地图决定是否显示、如何应用
             if (!entity.IsAuthority && state.Noel != null)
             {
-                WNMNTools.UpdateNoel(entity.OwnerPeer, state.Noel);
+                PolarisNoelsTools.UpdateNoel(entity.OwnerPeer, state.Noel);
             }
         }
 

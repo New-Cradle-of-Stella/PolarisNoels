@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using nel;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(M2PrSkill), nameof(M2PrSkill.initItemBomb))]
     public class Patch_M2PrSkill_initItemBomb

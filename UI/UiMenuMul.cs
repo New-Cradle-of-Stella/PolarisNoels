@@ -2,7 +2,7 @@
 using nel.gm;
 using XX;
 
-namespace WeNeedMoreNoels
+namespace PolarisNoels
 {
     public static class UiMenuMul
     {

@@ -2,7 +2,7 @@
 using nel.mgm.smncr;
 using XX;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(UiSmnCreator), nameof(UiSmnCreator.fnChangedFile))]
     public class Patch_UiSmnCreator_fnChangedFile

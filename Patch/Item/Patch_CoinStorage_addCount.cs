@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using nel;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(CoinStorage), nameof(CoinStorage.addCount), [typeof(int), typeof(CoinStorage.CTYPE), typeof(bool)])]
     public class Patch_CoinStorage_addCount
@@ -9,11 +9,11 @@ namespace WeNeedMoreNoels.Patch
         [HarmonyPostfix]
         static void Postfix(int v, CoinStorage.CTYPE ctype)
         {
-            if (!DB.IsMultiplayer || WNMNTools.ApplyingRemoteChange)
+            if (!DB.IsMultiplayer || PolarisNoelsTools.ApplyingRemoteChange)
             {
                 return;
             }
-            WNMNTools.SendGetCoinToAllPeers(ctype, v);
+            PolarisNoelsTools.SendGetCoinToAllPeers(ctype, v);
         }
     }
 }

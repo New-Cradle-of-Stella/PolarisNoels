@@ -3,10 +3,10 @@ using nel.mgm.smncr;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
-using WeNeedMoreNoels.DataStruct;
+using PolarisNoels.DataStruct;
 using XX;
 
-namespace WeNeedMoreNoels
+namespace PolarisNoels
 {
     /// <summary>模拟战斗（Smnc）联机大厅：面板创建、状态切换、界面绘制与确认逻辑。</summary>
     public static class SimBattleLobby
@@ -16,7 +16,7 @@ namespace WeNeedMoreNoels
         /// <summary>注册大厅 UI 的刷新回调，需在插件启动时调用一次。</summary>
         public static void Init()
         {
-            WNMNTools.UpdateSimUI = DrawUI;
+            PolarisNoelsTools.UpdateSimUI = DrawUI;
         }
 
         /// <summary>进入大厅状态；返回 true 表示应继续执行原版 changeState。</summary>
@@ -26,14 +26,14 @@ namespace WeNeedMoreNoels
             {
                 return true;
             }
-            if (WNMNTools.SimBattleSyncHost != WNMNTools.LocalID)
+            if (PolarisNoelsTools.SimBattleSyncHost != PolarisNoelsTools.LocalID)
             {
                 SimBattle battle = new()
                 {
                     Type = NotifySimBattleType.ConnectHost
                 };
-                WNMNTools.SendNotifySimBattleToAllPeers(battle);
-                WNMNTools.SimBattleReadyList.Add(WNMNTools.SimBattleSyncHost);
+                PolarisNoelsTools.SendNotifySimBattleToAllPeers(battle);
+                PolarisNoelsTools.SimBattleReadyList.Add(PolarisNoelsTools.SimBattleSyncHost);
             }
             creator.state = stt;
             DrawUI();
@@ -50,19 +50,19 @@ namespace WeNeedMoreNoels
             {
                 return;
             }
-            if (WNMNTools.SimBattleSyncHost == WNMNTools.LocalID)
+            if (PolarisNoelsTools.SimBattleSyncHost == PolarisNoelsTools.LocalID)
             {
-                WNMNTools.SendNotifySimBattleToAllPeers(new SimBattle { Type = NotifySimBattleType.CloseHost });
-                WNMNTools.SimBattleSyncHost = -1;
+                PolarisNoelsTools.SendNotifySimBattleToAllPeers(new SimBattle { Type = NotifySimBattleType.CloseHost });
+                PolarisNoelsTools.SimBattleSyncHost = -1;
             }
             else
             {
-                WNMNTools.SendNotifySimBattleToAllPeers(new SimBattle { Type = NotifySimBattleType.DisconnectHost });
+                PolarisNoelsTools.SendNotifySimBattleToAllPeers(new SimBattle { Type = NotifySimBattleType.DisconnectHost });
             }
             UiMenuMul.BxSB.deactivate();
             creator.changeState(UiSmnCreator.STATE.FILESEL);
-            WNMNTools.SimBattleSyncList.Clear();
-            WNMNTools.SimBattleReadyList.Clear();
+            PolarisNoelsTools.SimBattleSyncList.Clear();
+            PolarisNoelsTools.SimBattleReadyList.Clear();
         }
 
         /// <summary>创建大厅用到的各个面板。</summary>
@@ -86,7 +86,7 @@ namespace WeNeedMoreNoels
             });
             BxCmd.deactivate();
             UiMenuMul.BxSL = creator.DsFam.Create("BxSL", 0f, 0f, 640f, 130f, 1, 40f, UiBoxDesignerFamily.MASKTYPE.BOX);
-            WNMNTools.USC = creator;
+            PolarisNoelsTools.USC = creator;
             UiMenuMul.BxSS = creator.DsFam.Create("BxSS", 0f, 0f, IN.w * 0.5f, IN.h * 0.4f, 1, 40f, UiBoxDesignerFamily.MASKTYPE.BOX);
             UiMenuMul.BxSS.use_scroll = true;
         }
@@ -95,9 +95,9 @@ namespace WeNeedMoreNoels
         public static void OnConfirmActivate(UiSmncBattleConfirm confirm, SmncFile file)
         {
             UiMenuMul.BxSSI.deactivate();
-            WNMNTools.USBC = confirm;
-            WNMNTools.CurSimFile = file;
-            WNMNTools.SpawnDic[-1] = new(file.Astgo[0].x, file.Astgo[0].y);
+            PolarisNoelsTools.USBC = confirm;
+            PolarisNoelsTools.CurSimFile = file;
+            PolarisNoelsTools.SpawnDic[-1] = new(file.Astgo[0].x, file.Astgo[0].y);
         }
 
         /// <summary>点击战斗确认面板的按钮；返回 true 表示继续执行原版逻辑。</summary>
@@ -111,7 +111,7 @@ namespace WeNeedMoreNoels
             {
                 return true;
             }
-            if (WNMNTools.SimBattleSyncHost != -1)
+            if (PolarisNoelsTools.SimBattleSyncHost != -1)
             {
                 B.SetLocked(true);
                 return true;
@@ -120,10 +120,10 @@ namespace WeNeedMoreNoels
             {
                 return true;
             }
-            WNMNTools.SendNotifySimBattleToAllPeers(new SimBattle { Type = NotifySimBattleType.StartHost });
-            WNMNTools.SendNotifySimBattleToAllPeers(new SimBattle { Type = NotifySimBattleType.ConnectHost });
-            WNMNTools.SimBattleSyncHost = WNMNTools.LocalID;
-            WNMNTools.SimBattleReady = true;
+            PolarisNoelsTools.SendNotifySimBattleToAllPeers(new SimBattle { Type = NotifySimBattleType.StartHost });
+            PolarisNoelsTools.SendNotifySimBattleToAllPeers(new SimBattle { Type = NotifySimBattleType.ConnectHost });
+            PolarisNoelsTools.SimBattleSyncHost = PolarisNoelsTools.LocalID;
+            PolarisNoelsTools.SimBattleReady = true;
             confirm.deactivate();
             confirm.Con.changeState(State);
             return false;
@@ -146,7 +146,7 @@ namespace WeNeedMoreNoels
                 margin_t = 5f,
                 margin_b = 5f
             });
-            if (WNMNTools.SimBattleSyncHost == -1)
+            if (PolarisNoelsTools.SimBattleSyncHost == -1)
             {
                 BxCmd.alignx = ALIGN.CENTER;
                 BxCmd.addP(new()
@@ -162,7 +162,7 @@ namespace WeNeedMoreNoels
             {
                 TxCol = ColorDefault,
                 size = 30,
-                text = WNMNTools.SimBattleSyncHost == WNMNTools.LocalID ? TX.GetA("multiplayer_simbattle_hostsubtitle", (WNMNTools.SimBattleSyncList.Count + 1).ToString(), (DB.noelIns.Count + 1).ToString()) : TX.GetA("multiplayer_simbattle_clientsubtitle", (WNMNTools.SimBattleSyncList.Count + 1).ToString(), (DB.noelIns.Count + 1).ToString())
+                text = PolarisNoelsTools.SimBattleSyncHost == PolarisNoelsTools.LocalID ? TX.GetA("multiplayer_simbattle_hostsubtitle", (PolarisNoelsTools.SimBattleSyncList.Count + 1).ToString(), (DB.noelIns.Count + 1).ToString()) : TX.GetA("multiplayer_simbattle_clientsubtitle", (PolarisNoelsTools.SimBattleSyncList.Count + 1).ToString(), (DB.noelIns.Count + 1).ToString())
             });
             var block1 = BxCmd.addP(new()
             {
@@ -188,9 +188,9 @@ namespace WeNeedMoreNoels
             {
                 TxCol = ColorDefault,
                 size = 20,
-                text = TX.GetA("multiplayer_simbattle_name", (WNMNTools.GetNickname(WNMNTools.SimBattleSyncHost)).ToString())
+                text = TX.GetA("multiplayer_simbattle_name", (PolarisNoelsTools.GetNickname(PolarisNoelsTools.SimBattleSyncHost)).ToString())
             });
-            if (WNMNTools.SimBattleSyncHost != WNMNTools.LocalID)
+            if (PolarisNoelsTools.SimBattleSyncHost != PolarisNoelsTools.LocalID)
             {
                 BxCmd.Br();
                 BxCmd.alignx = ALIGN.CENTER;
@@ -204,7 +204,7 @@ namespace WeNeedMoreNoels
                 {
                     TxCol = ColorDefault,
                     size = 20,
-                    text = WNMNTools.SimBattleSynced ? TX.Get("multiplayer_simbattle_synced") : TX.Get("multiplayer_simbattle_unsynced")
+                    text = PolarisNoelsTools.SimBattleSynced ? TX.Get("multiplayer_simbattle_synced") : TX.Get("multiplayer_simbattle_unsynced")
                 });
                 BxCmd.Br();
                 BxCmd.alignx = ALIGN.CENTER;
@@ -221,7 +221,7 @@ namespace WeNeedMoreNoels
                     title = TX.Get("multiplayer_simbattle_syncmap"),
                     fnClick = B =>
                     {
-                        WNMNTools.SendSimBattleSync(WNMNTools.SimBattleSyncHost);
+                        PolarisNoelsTools.SendSimBattleSync(PolarisNoelsTools.SimBattleSyncHost);
                         return true;
                     }
                 });
@@ -233,7 +233,7 @@ namespace WeNeedMoreNoels
                 margin_b = 5f
             });
             BxCmd.alignx = ALIGN.CENTER;
-            if (WNMNTools.SimBattleSyncHost == WNMNTools.LocalID)
+            if (PolarisNoelsTools.SimBattleSyncHost == PolarisNoelsTools.LocalID)
             {
                 BxCmd.addP(new()
                 {
@@ -247,7 +247,7 @@ namespace WeNeedMoreNoels
                 {
                     TxCol = ColorDefault,
                     size = 10,
-                    text = $"( {WNMNTools.SpawnDic[-1].x}, {WNMNTools.SpawnDic[-1].y} )"
+                    text = $"( {PolarisNoelsTools.SpawnDic[-1].x}, {PolarisNoelsTools.SpawnDic[-1].y} )"
                 });
                 BxCmd.Br();
                 BxCmd.alignx = ALIGN.CENTER;
@@ -256,20 +256,20 @@ namespace WeNeedMoreNoels
                     title = TX.Get("multiplayer_simbattle_setdefaultspawn"),
                     fnClick = B =>
                     {
-                        WNMNTools.IsSettingSpawnLocation = true;
-                        WNMNTools.CurrentSetID = -1;
+                        PolarisNoelsTools.IsSettingSpawnLocation = true;
+                        PolarisNoelsTools.CurrentSetID = -1;
                         UiMenuMul.BxSL.deactivate();
                         UiMenuMul.BxSB.deactivate();
-                        WNMNTools.USC.changeState(UiSmnCreator.STATE.SCREATE);
-                        WNMNTools.SSE.changeState(SmncStageEditor.STATE.LIST);
-                        WNMNTools.SSE.fnChangedListStgo(WNMNTools.SSE.BConL, WNMNTools.SSE.BConL.selected, 0);
-                        if (WNMNTools.SpawnDic.ContainsKey(WNMNTools.CurrentSetID))
+                        PolarisNoelsTools.USC.changeState(UiSmnCreator.STATE.SCREATE);
+                        PolarisNoelsTools.SSE.changeState(SmncStageEditor.STATE.LIST);
+                        PolarisNoelsTools.SSE.fnChangedListStgo(PolarisNoelsTools.SSE.BConL, PolarisNoelsTools.SSE.BConL.selected, 0);
+                        if (PolarisNoelsTools.SpawnDic.ContainsKey(PolarisNoelsTools.CurrentSetID))
                         {
-                            SmncStageEditorManager.StgObject @object = WNMNTools.SSE.CurFile.Astgo[0];
-                            @object.x = (int)WNMNTools.SpawnDic[WNMNTools.CurrentSetID].x;
-                            @object.y = (int)WNMNTools.SpawnDic[WNMNTools.CurrentSetID].y;
-                            WNMNTools.CurSimFile.Astgo[0] = @object;
-                            WNMNTools.SSE.drawCheck();
+                            SmncStageEditorManager.StgObject @object = PolarisNoelsTools.SSE.CurFile.Astgo[0];
+                            @object.x = (int)PolarisNoelsTools.SpawnDic[PolarisNoelsTools.CurrentSetID].x;
+                            @object.y = (int)PolarisNoelsTools.SpawnDic[PolarisNoelsTools.CurrentSetID].y;
+                            PolarisNoelsTools.CurSimFile.Astgo[0] = @object;
+                            PolarisNoelsTools.SSE.drawCheck();
                         }
                         return true;
                     }
@@ -288,7 +288,7 @@ namespace WeNeedMoreNoels
                 {
                     TxCol = ColorDefault,
                     size = 15,
-                    text = TX.Get(WNMNTools.SpawnDic.ContainsKey(WNMNTools.LocalID) && WNMNTools.SimBattleSyncList.All(WNMNTools.SpawnDic.ContainsKey) ? "Desc_multiplayer_simbattle_noinvalidspawn" : "Desc_multiplayer_simbattle_invalidspawndetected")
+                    text = TX.Get(PolarisNoelsTools.SpawnDic.ContainsKey(PolarisNoelsTools.LocalID) && PolarisNoelsTools.SimBattleSyncList.All(PolarisNoelsTools.SpawnDic.ContainsKey) ? "Desc_multiplayer_simbattle_noinvalidspawn" : "Desc_multiplayer_simbattle_invalidspawndetected")
                 });
                 BxCmd.Br();
                 BxCmd.alignx = ALIGN.CENTER;
@@ -307,7 +307,7 @@ namespace WeNeedMoreNoels
                         {
                             TxCol = ColorDefault,
                             size = 20,
-                            text = TX.Get("multiplayer_simbattle_player") + "#" + WNMNTools.GetNickname(WNMNTools.LocalID)
+                            text = TX.Get("multiplayer_simbattle_player") + "#" + PolarisNoelsTools.GetNickname(PolarisNoelsTools.LocalID)
                         });
                         BxCmd.addP(new()
                         {
@@ -315,13 +315,13 @@ namespace WeNeedMoreNoels
                             size = 20,
                             text = " - "
                         });
-                        if (WNMNTools.SpawnDic.ContainsKey(WNMNTools.LocalID))
+                        if (PolarisNoelsTools.SpawnDic.ContainsKey(PolarisNoelsTools.LocalID))
                         {
                             BxCmd.addP(new()
                             {
                                 TxCol = ColorDefault,
                                 size = 20,
-                                text = $"( {WNMNTools.SpawnDic[WNMNTools.LocalID].x}, {WNMNTools.SpawnDic[WNMNTools.LocalID].y} )"
+                                text = $"( {PolarisNoelsTools.SpawnDic[PolarisNoelsTools.LocalID].x}, {PolarisNoelsTools.SpawnDic[PolarisNoelsTools.LocalID].y} )"
                             });
                         }
                         else
@@ -334,14 +334,14 @@ namespace WeNeedMoreNoels
                             });
                         }
                         BxCmd.Br();
-                        foreach (int id in WNMNTools.SimBattleSyncList)
+                        foreach (int id in PolarisNoelsTools.SimBattleSyncList)
                         {
                             BxCmd.alignx = ALIGN.CENTER;
                             BxCmd.addP(new()
                             {
                                 TxCol = ColorDefault,
                                 size = 20,
-                                text = TX.Get("multiplayer_simbattle_player") + "#" + WNMNTools.GetNickname(id)
+                                text = TX.Get("multiplayer_simbattle_player") + "#" + PolarisNoelsTools.GetNickname(id)
                             });
                             BxCmd.addP(new()
                             {
@@ -349,13 +349,13 @@ namespace WeNeedMoreNoels
                                 size = 20,
                                 text = " - "
                             });
-                            if (WNMNTools.SpawnDic.ContainsKey(id))
+                            if (PolarisNoelsTools.SpawnDic.ContainsKey(id))
                             {
                                 BxCmd.addP(new()
                                 {
                                     TxCol = ColorDefault,
                                     size = 20,
-                                    text = $"( {WNMNTools.SpawnDic[id].x}, {WNMNTools.SpawnDic[id].y} )"
+                                    text = $"( {PolarisNoelsTools.SpawnDic[id].x}, {PolarisNoelsTools.SpawnDic[id].y} )"
                                 });
                             }
                             else
@@ -393,7 +393,7 @@ namespace WeNeedMoreNoels
                     title = TX.Get("multiplayer_simbattle_chooseplayer"),
                     fnClick = B =>
                     {
-                        string[] btns = [WNMNTools.GetNickname(WNMNTools.LocalID), ..WNMNTools.SimBattleSyncList.Select(x => DB.noelIns[x].NickNameStr), TX.Get("Cancel")];
+                        string[] btns = [PolarisNoelsTools.GetNickname(PolarisNoelsTools.LocalID), ..PolarisNoelsTools.SimBattleSyncList.Select(x => DB.noelIns[x].NickNameStr), TX.Get("Cancel")];
                         UiBoxDesigner BxCmd = UiMenuMul.BxSL;
                         BxCmd.activate();
                         IN.setZ(BxCmd.transform, UiMenuMul.BxSB.transform.position.z - 1f);
@@ -415,20 +415,20 @@ namespace WeNeedMoreNoels
                             {
                                 if (BSub.title != TX.Get("Cancel"))
                                 {
-                                    WNMNTools.IsSettingSpawnLocation = true;
-                                    WNMNTools.CurrentSetID = btns.ToList().IndexOf(BSub.title);
+                                    PolarisNoelsTools.IsSettingSpawnLocation = true;
+                                    PolarisNoelsTools.CurrentSetID = btns.ToList().IndexOf(BSub.title);
                                     UiMenuMul.BxSL.deactivate();
                                     UiMenuMul.BxSB.deactivate();
-                                    WNMNTools.USC.changeState(UiSmnCreator.STATE.SCREATE);
-                                    WNMNTools.SSE.changeState(SmncStageEditor.STATE.LIST);
-                                    WNMNTools.SSE.fnChangedListStgo(WNMNTools.SSE.BConL, WNMNTools.SSE.BConL.selected, 0);
-                                    if (WNMNTools.SpawnDic.ContainsKey(WNMNTools.CurrentSetID))
+                                    PolarisNoelsTools.USC.changeState(UiSmnCreator.STATE.SCREATE);
+                                    PolarisNoelsTools.SSE.changeState(SmncStageEditor.STATE.LIST);
+                                    PolarisNoelsTools.SSE.fnChangedListStgo(PolarisNoelsTools.SSE.BConL, PolarisNoelsTools.SSE.BConL.selected, 0);
+                                    if (PolarisNoelsTools.SpawnDic.ContainsKey(PolarisNoelsTools.CurrentSetID))
                                     {
-                                        SmncStageEditorManager.StgObject @object = WNMNTools.SSE.StgoMaking;
-                                        @object.x = (int)WNMNTools.SpawnDic[WNMNTools.CurrentSetID].x;
-                                        @object.y = (int)WNMNTools.SpawnDic[WNMNTools.CurrentSetID].y;
-                                        WNMNTools.SSE.StgoMaking = @object;
-                                        WNMNTools.SSE.drawCheck();
+                                        SmncStageEditorManager.StgObject @object = PolarisNoelsTools.SSE.StgoMaking;
+                                        @object.x = (int)PolarisNoelsTools.SpawnDic[PolarisNoelsTools.CurrentSetID].x;
+                                        @object.y = (int)PolarisNoelsTools.SpawnDic[PolarisNoelsTools.CurrentSetID].y;
+                                        PolarisNoelsTools.SSE.StgoMaking = @object;
+                                        PolarisNoelsTools.SSE.drawCheck();
                                     }
                                     return true;
                                 }
@@ -466,11 +466,11 @@ namespace WeNeedMoreNoels
             {
                 TxCol = ColorDefault,
                 size = 20,
-                text = TX.GetA("multiplayer_simbattle_readytitle", (WNMNTools.SimBattleReadyList.Count + (WNMNTools.SimBattleSyncHost == WNMNTools.LocalID ? 1 : (WNMNTools.SimBattleReady ? 1 : 0))).ToString(), (WNMNTools.SimBattleSyncList.Count + 1).ToString())
+                text = TX.GetA("multiplayer_simbattle_readytitle", (PolarisNoelsTools.SimBattleReadyList.Count + (PolarisNoelsTools.SimBattleSyncHost == PolarisNoelsTools.LocalID ? 1 : (PolarisNoelsTools.SimBattleReady ? 1 : 0))).ToString(), (PolarisNoelsTools.SimBattleSyncList.Count + 1).ToString())
             });
             BxCmd.Br();
             BxCmd.alignx = ALIGN.CENTER;
-            if (WNMNTools.SimBattleSyncHost == WNMNTools.LocalID)
+            if (PolarisNoelsTools.SimBattleSyncHost == PolarisNoelsTools.LocalID)
             {
                 BxCmd.addP(new()
                 {
@@ -485,11 +485,11 @@ namespace WeNeedMoreNoels
                     title = "&&Smnc_start_battle_submit",
                     fnClick = B =>
                     {
-                        WNMNTools.OpenSmncBattle();
+                        PolarisNoelsTools.OpenSmncBattle();
                         return true;
                     }
                 });
-                if (WNMNTools.SimBattleReadyList.Count != WNMNTools.SimBattleSyncList.Count)
+                if (PolarisNoelsTools.SimBattleReadyList.Count != PolarisNoelsTools.SimBattleSyncList.Count)
                 {
                     b.SetLocked(true);
                 }
@@ -497,7 +497,7 @@ namespace WeNeedMoreNoels
             }
             else
             {
-                if (WNMNTools.SimBattleSynced)
+                if (PolarisNoelsTools.SimBattleSynced)
                 {
                     BxCmd.addP(new()
                     {
@@ -509,17 +509,17 @@ namespace WeNeedMoreNoels
                     BxCmd.alignx = ALIGN.CENTER;
                     var b = BxCmd.addButton(new()
                     {
-                        title = WNMNTools.SimBattleReady ? TX.Get("multiplayer_simbattle_ready") : TX.Get("multiplayer_simbattle_unready"),
+                        title = PolarisNoelsTools.SimBattleReady ? TX.Get("multiplayer_simbattle_ready") : TX.Get("multiplayer_simbattle_unready"),
                         fnClick = B =>
                         {
-                            WNMNTools.SimBattleReady = !WNMNTools.SimBattleReady;
-                            if (WNMNTools.SimBattleReady)
+                            PolarisNoelsTools.SimBattleReady = !PolarisNoelsTools.SimBattleReady;
+                            if (PolarisNoelsTools.SimBattleReady)
                             {
                                 SimBattle battle = new()
                                 {
                                     Type = NotifySimBattleType.ReadyHost
                                 };
-                                WNMNTools.SendNotifySimBattleToAllPeers(battle);
+                                PolarisNoelsTools.SendNotifySimBattleToAllPeers(battle);
                             }
                             else
                             {
@@ -527,7 +527,7 @@ namespace WeNeedMoreNoels
                                 {
                                     Type = NotifySimBattleType.UnreadyHost
                                 };
-                                WNMNTools.SendNotifySimBattleToAllPeers(battle);
+                                PolarisNoelsTools.SendNotifySimBattleToAllPeers(battle);
                             }
                             DrawUI();
                             return true;

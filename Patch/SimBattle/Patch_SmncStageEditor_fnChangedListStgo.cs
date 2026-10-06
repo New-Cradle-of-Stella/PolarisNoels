@@ -2,7 +2,7 @@
 using nel.mgm.smncr;
 using XX;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(SmncStageEditor), nameof(SmncStageEditor.fnChangedListStgo))]
     public class Patch_SmncStageEditor_fnChangedListStgo
@@ -10,7 +10,7 @@ namespace WeNeedMoreNoels.Patch
         [HarmonyPrefix]
         static bool Prefix(int cur_value)
         {
-            if (!DB.IsMultiplayer || WNMNTools.IsSettingSpawnLocation)
+            if (!DB.IsMultiplayer || PolarisNoelsTools.IsSettingSpawnLocation)
             {
                 return true;
             }

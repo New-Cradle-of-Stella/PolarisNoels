@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using nel;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(MTR), nameof(MTR.initPrAnimatorPxl))]
     public class Patch_MTR_initPrAnimatorPxl

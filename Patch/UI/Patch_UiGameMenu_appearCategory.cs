@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using nel.gm;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(UiGameMenu), nameof(UiGameMenu.appearCategory))]
     internal class Patch_UiGameMenu_appearCategory

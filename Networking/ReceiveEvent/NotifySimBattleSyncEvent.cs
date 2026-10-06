@@ -1,38 +1,38 @@
 ﻿using nel.mgm.smncr;
 using Newtonsoft.Json;
 using PixelLiner.PixelLinerLib;
-using WeNeedMoreNoels.DataStruct;
+using PolarisNoels.DataStruct;
 
-namespace WeNeedMoreNoels.Networking.ReceiveEvent
+namespace PolarisNoels.Networking.ReceiveEvent
 {
     public class NotifySimBattleSyncEvent : PeerReceiveMessageBase
     {
-        public override bool CheckMessage(WNMNPeerMessage message)
+        public override bool CheckMessage(PolarisNoelsPeerMessage message)
         {
-            return message.Type == WNMNPeerMessageType.NotifySimBattleSync && message.PeerId == WNMNTools.LocalID;
+            return message.Type == PolarisNoelsPeerMessageType.NotifySimBattleSync && message.PeerId == PolarisNoelsTools.LocalID;
         }
 
-        public override void ReceiveMessage(WNMNPeerMessage message)
+        public override void ReceiveMessage(PolarisNoelsPeerMessage message)
         {
             if (message.SyncSimBattle.SyncID == -1)
             {
                 ByteArray array = new(message.SyncSimBattle.SyncSimBattleData);
-                SmncFile.readFromFile(array, WNMNTools.USC.M2D, (file, _) =>
+                SmncFile.readFromFile(array, PolarisNoelsTools.USC.M2D, (file, _) =>
                 {
-                    WNMNTools.CurSimFile = file;
-                    WNMNTools.USC.AFiles.Add(file);
-                    WNMNTools.USC.initFileSelection(file, true);
-                    WNMNTools.SimBattleSynced = true;
-                    WNMNTools.UpdateSimUI?.Invoke();
+                    PolarisNoelsTools.CurSimFile = file;
+                    PolarisNoelsTools.USC.AFiles.Add(file);
+                    PolarisNoelsTools.USC.initFileSelection(file, true);
+                    PolarisNoelsTools.SimBattleSynced = true;
+                    PolarisNoelsTools.UpdateSimUI?.Invoke();
                 });
             }
             else
             {
-                WNMNTools.SendBackSimBattleSyncData(message.SyncSimBattle.SyncID);
+                PolarisNoelsTools.SendBackSimBattleSyncData(message.SyncSimBattle.SyncID);
             }
         }
 
-        public override string ToMessageString(WNMNPeerMessage message)
+        public override string ToMessageString(PolarisNoelsPeerMessage message)
         {
             return $"SimBattleSync:{JsonConvert.SerializeObject(message)}";
         }

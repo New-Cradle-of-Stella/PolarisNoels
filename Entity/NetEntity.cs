@@ -1,8 +1,8 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using WeNeedMoreNoels.DataStruct;
+using PolarisNoels.DataStruct;
 
-namespace WeNeedMoreNoels
+namespace PolarisNoels
 {
     public enum EntityRole
     {
@@ -30,6 +30,9 @@ namespace WeNeedMoreNoels
 
         /// <summary>该实体的所有者（Authority 一方）的 PeerId。</summary>
         public int OwnerPeer { get; private set; }
+        public EntitySpawn SpawnInfo { get; internal set; }
+        string initialMapKey;
+        public string MapKey => IsLocalPlayer ? DB.MainPR?.Mp?.key : initialMapKey;
 
         public bool IsAuthority => Role == EntityRole.Authority;
 
@@ -42,6 +45,7 @@ namespace WeNeedMoreNoels
             OwnerPeer = ownerPeer;
             Role = role;
             Kind = kind;
+            initialMapKey = DB.MainPR?.Mp?.key;
             foreach (IEntityModule module in mods)
             {
                 modules.Add(module);
@@ -77,10 +81,10 @@ namespace WeNeedMoreNoels
 
         void Update()
         {
-            if (IsLocalPlayer && !registered && WNMNTools.LocalID >= 0)
+            if (IsLocalPlayer && !registered && PolarisNoelsTools.LocalID >= 0)
             {
-                Id = EntityIds.ForPlayer(WNMNTools.LocalID);
-                OwnerPeer = WNMNTools.LocalID;
+                Id = EntityIds.ForPlayer(PolarisNoelsTools.LocalID);
+                OwnerPeer = PolarisNoelsTools.LocalID;
                 Register();
             }
             if (!registered)

@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using nel;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(M2PrOverChargeSlot), nameof(M2PrOverChargeSlot.clearMagic), [typeof(MagicItem), typeof(bool), typeof(bool)])]
     public class Patch_M2PrOverChargeSlot_clearMagic

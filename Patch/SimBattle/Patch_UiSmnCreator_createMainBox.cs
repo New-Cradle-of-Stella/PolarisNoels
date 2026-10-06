@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using nel.mgm.smncr;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(UiSmnCreator), nameof(UiSmnCreator.createMainBox))]
     public class Patch_UiSmnCreator_createMainBox

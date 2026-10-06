@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using nel.title;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(SceneTitleTemp), nameof(SceneTitleTemp.changeState))]
     public class Patch_SceneTitleTemp_changeState
@@ -10,15 +10,15 @@ namespace WeNeedMoreNoels.Patch
         static void Postfix(object __instance)
         {
             SceneTitleTemp stt = (SceneTitleTemp)__instance;
-            if (DB.WNMNUIClicking && stt.state == SceneTitleTemp.STATE.DIFF_SELECT)
+            if (DB.PolarisNoelsUIClicking && stt.state == SceneTitleTemp.STATE.DIFF_SELECT)
             {
                 stt.BxDiff.destruct(true);
                 stt.BxDiff = new UITitleMultiplayerConfirm(null, -4.25f, stt, 0, 2);
-                DB.WNMNUIClicking = false;
+                DB.PolarisNoelsUIClicking = false;
             }
             if (stt.state == SceneTitleTemp.STATE.TOP)
             {
-                DB.WNMNHostSelectSVD = false;
+                DB.PolarisNoelsHostSelectSVD = false;
             }
         }
     }

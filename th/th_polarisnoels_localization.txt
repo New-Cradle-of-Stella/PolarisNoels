@@ -1,0 +1,176 @@
+﻿&&btn_multiplayer Multiplayer
+
+&&multiplayer_host_title Host config
+&&multiplayer_client_title Client config
+
+&&multiplayer_host_port Host port: 
+&&multiplayer_host_kicked Host kicked you out
+&&multiplayer_host_closed Host closed
+
+&&multiplayer_busy_port Port busy
+&&multiplayer_connect_timeout Connect timeout
+
+&&multiplayer_nickname Nickname: 
+&&multiplayer_select_noel Select character:
+&&multiplayer_invisible_nickname Streamer Mode:
+
+&&multiplayer_con :
+
+&&multiplayer_noel Normal noel
+&&multiplayer_noel_inverse Inversed noel
+&&multiplayer_noel_red Noel in red
+&&multiplayer_noel_orange Noel in orange
+&&multiplayer_noel_yellow Noel in yellow
+&&multiplayer_noel_green Noel in green
+&&multiplayer_noel_cyan Noel in cyan
+&&multiplayer_noel_blue Noel in blue
+&&multiplayer_noel_purple Noel in purple
+&&multiplayer_noel_magenta Noel in magenta
+
+&&multiplayer_noel_nickname Noel#
+
+&&multiplayer_reset Reset
+
+&&multiplayer_cata Multiplayer
+
+&&multiplayer_menu_title Multiplayer Menu
+&&multiplayer_menu_utilities Common Utilities
+&&multiplayer_menu_modify_nickname Change nickname
+&&multiplayer_menu_modify_party Change party
+&&multiplayer_menu_teleport Teleport to ...
+&&multiplayer_menu_syncbackpackandmony Manually sync backpack & money
+&&multiplayer_menu_syncbackpackandmony_warn *Synchronizing will cause the current backpack items to be lost. Continue?
+&&multiplayer_menu_sendmsg Send short message
+&&multiplayer_menu_mute *You have been muted.
+&&multiplayer_menu_host_utilities Host Utilities
+&&multiplayer_menu_host_kick Kick out ...
+&&multiplayer_menu_host_mute Mute ...
+&&multiplayer_menu_host_teleportallself Regroup players
+&&multiplayer_menu_host_modifyroomconfig Modify room's config
+&&multiplayer_menu_config_title Room configs
+
+// ========================================================
+// MARK : 多人选项选择
+// ========================================================
+
+/* ___ Title_multiplayer_top ___ */ 
+<key la/><key ra/>Switch <key submit/>Submit <key cancel/>Cancel
+Select the multiplayer mode
+
+&&Title_multiplayer_host Host
+&&Title_multiplayer_client Client
+
+/* ___ Title_multiplayer_desc_host ___ */ 
+Start a host and let other player connect.
+
+/* ___ Title_multiplayer_desc_client ___ */ 
+Connect to existed host.
+Enjoy multi-"KAWAISOU"!
+
+// ========================================================
+// MARK : 多人模式设置菜单
+// ========================================================
+
+&&Config_mpconfig_show_nicknames Show nicknames
+&&Config_desc_mpconfig_show_nicknames Set whether to display the player's nickname in the game.
+&&Config_mpconfig_show_delay Show delay
+&&Config_desc_mpconfig_show_delay Set whether to display the player's delay in the game.
+
+// ========================================================
+// MARK : 多人房间设置菜单
+// ========================================================
+
+&&multiplayer_room_maxplayercount Maximum player count
+&&multiplayer_room_enablepvp Enable PVP
+
+&&multiplayer_recommend Recommend
+&&multiplayer_unstable Unstable
+&&multiplayer_experimental Experimental
+
+&&multiplayer_enemy_title Enemy summon mode
+&&multiplayer_enemy_starter Starter only
+&&multiplayer_enemy_smart Smart average
+&&multiplayer_enemy_independent Client independent
+
+/* ___ Desc_multiplayer_enemy ___ */
+Enemy summon mode is the synchronization methods multiplayer battle
+Starter only: Only the battle starter spawns enemies; other players synchronize with their enemies.
+Smart Average: Dynamically adjusts the total number of monsters using an algorithm to create a more relaxed monster-fighting environment.
+Independent Spawn: Completely independent spawning, go ahead and fight freely!  *May cause lag when too many players
+*Cannot be changed after the battle starts
+*Danger incrases the same as amount of enemies
+
+/* ___ Desc_multiplayer_enemy_inbattle ___ */
+*In battle currently, Can't change enemy summon mode
+
+// ========================================================
+// MARK : 短消息
+// ========================================================
+
+&&multiplayer_msg_greeting Hello!
+&&multiplayer_msg_come_here Come here!
+&&multiplayer_msg_pve_start Let's fight together!
+&&multiplayer_msg_pve_warn Watch out!
+&&multiplayer_msg_pve_help Help!
+&&multiplayer_msg_pvp_start Let's fight!
+&&multiplayer_msg_pvp_greeting Please be kind!
+&&multiplayer_msg_sitting Let's break!
+&&multiplayer_msg_goodbye Goodbye!
+
+// ========================================================
+// MARK : 模拟战
+// ========================================================
+
+&&multiplayer_simbattle_btn Join simulation
+&&multiplayer_simbattle_title Start multiplayer-simulation
+&&multiplayer_simbattle_noroom No simulation found
+&&multiplayer_simbattle_hostsubtitle Hosting simulation (&1/&2 Connected) Waiting
+&&multiplayer_simbattle_clientsubtitle In simulation (&1/&2 Connected) Waiting
+&&multiplayer_simbattle_name &1's simulation
+&&multiplayer_simbattle_simstate Current simulation's map state:
+&&multiplayer_simbattle_synced Synchronized
+&&multiplayer_simbattle_unsynced Not synced
+&&multiplayer_simbattle_synchint You can hit the button below to synchronize map
+&&multiplayer_simbattle_syncmap Synchronize map
+&&multiplayer_simbattle_readytitle Current ready count (&1/&2)
+&&multiplayer_simbattle_readyhint You can start simulation when everyone's ready
+&&multiplayer_simbattle_readyhint1 Please hit the button below to ready
+&&multiplayer_simbattle_ready Ready
+&&multiplayer_simbattle_unready Not Ready
+&&multiplayer_simbattle_syncfirst Please synchronize map first
+
+/* ___ Desc_multiplayer_simbattle_invalidspawn ___ */
+Editing spawn point in multiplayer mode is not currently supported
+Configure spawn point in multiplayer panel
+
+/* ___ Desc_multiplayer_simbattle_invalidspawndetected ___ */
+Unconfigured spawn point detected！
+Click the right button below to configure. Otherwise will use the default spawn point
+
+/* ___ Desc_multiplayer_simbattle_noinvalidspawn ___ */
+All player's spawn point configured✓
+
+&&multiplayer_simbattle_defaultspawn Default spawn point
+&&multiplayer_simbattle_setdefaultspawn Set default spawn point
+&&multiplayer_simbattle_playerspawn Player spawn point
+&&multiplayer_simbattle_checkspawn Check player spawn point
+&&multiplayer_simbattle_player Player
+&&multiplayer_simbattle_default Unconfigured, Use default point instead
+&&multiplayer_simbattle_chooseplayer Choose a character...
+
+&&multiplayer_room_code Room code
+&&multiplayer_room_code_hint Share this room code with friends; press Submit once they joined.
+&&multiplayer_room_code_collecting collecting candidates...
+&&multiplayer_copy_room_code Copy room code
+&&multiplayer_direct_hint Advanced: fill in host IP + port to connect directly (needs port forwarding).
+&&multiplayer_waiting Joining room...
+&&multiplayer_joining Connecting to host...
+&&multiplayer_waiting_host Waiting for host handshake...
+&&multiplayer_receiving_save Receiving save
+&&multiplayer_room_code_no_rejoin_hint The same connection is reused after entering the game; no reconnect.
+&&multiplayer_native_missing Native network library unavailable, multiplayer disabled
+&&multiplayer_join_bad_code Invalid room code
+&&multiplayer_join_punch_timeout Direct connection failed. NAT filtering may require host port forwarding.
+&&multiplayer_join_handshake_failed Handshake failed
+&&multiplayer_join_room_full Room is full
+&&mpconfig_enable_stun STUN (public candidate)

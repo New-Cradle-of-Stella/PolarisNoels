@@ -1,0 +1,176 @@
+﻿&&btn_multiplayer 多人遊戲
+
+&&multiplayer_host_title 主機設置
+&&multiplayer_client_title 客戶端設置
+
+&&multiplayer_host_port 主機端口
+&&multiplayer_host_kicked 主機將你踢出
+&&multiplayer_host_closed 主機已關閉
+
+&&multiplayer_busy_port 端口被佔用
+&&multiplayer_connect_timeout 連接超時
+
+&&multiplayer_nickname 暱稱： 
+&&multiplayer_select_noel 選擇人物：
+&&multiplayer_invisible_nickname 主播模式：
+
+&&multiplayer_con ：
+
+&&multiplayer_noel 普通諾艾兒
+&&multiplayer_noel_inverse 反轉諾艾兒
+&&multiplayer_noel_red 紅色諾艾兒
+&&multiplayer_noel_orange 橙色諾艾兒
+&&multiplayer_noel_yellow 黃色諾艾兒
+&&multiplayer_noel_green 綠色諾艾兒
+&&multiplayer_noel_cyan 青色諾艾兒
+&&multiplayer_noel_blue 藍色諾艾兒
+&&multiplayer_noel_purple 紫色諾艾兒
+&&multiplayer_noel_magenta 品紅色諾艾兒
+
+&&multiplayer_noel_nickname 諾艾兒#
+
+&&multiplayer_reset 重置
+
+&&multiplayer_cata 多人
+
+&&multiplayer_menu_title 多人遊戲菜單
+&&multiplayer_menu_utilities 常用功能
+&&multiplayer_menu_modify_nickname 修改暱稱
+&&multiplayer_menu_modify_party 更改陣營
+&&multiplayer_menu_teleport 傳送至...
+&&multiplayer_menu_syncbackpackandmony 手動同步背包&金錢
+&&multiplayer_menu_syncbackpackandmony_warn *同步將導致當前背包物品丟失，繼續？
+&&multiplayer_menu_sendmsg 發送短語
+&&multiplayer_menu_mute *你已被禁言
+&&multiplayer_menu_host_utilities 房主功能
+&&multiplayer_menu_host_kick 踢出...
+&&multiplayer_menu_host_mute 禁言...
+&&multiplayer_menu_host_teleportallself 集合玩家
+&&multiplayer_menu_host_modifyroomconfig 修改房間設置
+&&multiplayer_menu_config_title 房間設置
+
+// ========================================================
+// MARK : 多人選項選擇
+// ========================================================
+
+/* ___ Title_multiplayer_top ___ */ 
+<key la/><key ra/>選擇 <key submit/>確定 <key cancel/>退回主菜單
+選擇多人模式
+
+&&Title_multiplayer_host 主機
+&&Title_multiplayer_client 客戶端
+
+/* ___ Title_multiplayer_desc_host ___ */ 
+作爲主機啓動，讓其他玩家連接
+
+/* ___ Title_multiplayer_desc_client ___ */ 
+連接到一個已有的主機
+享受多重「可憐即可愛」吧！
+
+// ========================================================
+// MARK : 多人模式設置菜單
+// ========================================================
+
+&&Config_mpconfig_show_nicknames 顯示玩家暱稱
+&&Config_desc_mpconfig_show_nicknames 設置在遊戲內是否顯示玩家暱稱
+&&Config_mpconfig_show_delay 顯示玩家延遲
+&&Config_desc_mpconfig_show_delay 設置在遊戲內是否顯示玩家延遲
+
+// ========================================================
+// MARK : 多人房间设置菜单
+// ========================================================
+
+&&multiplayer_room_maxplayercount 最大玩家数量
+&&multiplayer_room_enablepvp 啟用PVP
+
+&&multiplayer_recommend 推薦
+&&multiplayer_unstable 不穩定
+&&multiplayer_experimental 實驗性的
+
+&&multiplayer_enemy_title 刷怪模式
+&&multiplayer_enemy_starter 僅發起者
+&&multiplayer_enemy_smart 智能平均
+&&multiplayer_enemy_independent 獨立刷新
+
+/* ___ Desc_multiplayer_enemy ___ */
+刷怪模式為多人模式進入戰鬥後同步的方式
+僅發起者：只有戰鬥發起者會刷怪，其餘玩家均同步
+智能平均：用算法動態調整怪物總數，儘量營造輕鬆的打怪環境
+獨立刷新：完全獨立刷新，盡情打怪吧！ *當人多時可能會造成卡頓
+*戰鬥開始後無法更改
+*危險度結算同步怪數
+
+/* ___ Desc_multiplayer_enemy_inbattle ___ */
+*當前處於戰鬥中，無法更改同步模式
+
+// ========================================================
+// MARK : 短消息
+// ========================================================
+
+&&multiplayer_msg_greeting 你好！
+&&multiplayer_msg_come_here 來這裏！
+&&multiplayer_msg_pve_start 一起戰鬥吧！
+&&multiplayer_msg_pve_warn 小心躲避！
+&&multiplayer_msg_pve_help 救命！
+&&multiplayer_msg_pvp_start 來比試吧！
+&&multiplayer_msg_pvp_greeting 請多指教！
+&&multiplayer_msg_sitting 休息一下吧！
+&&multiplayer_msg_goodbye 再見！
+
+// ========================================================
+// MARK : 模擬戰
+// ========================================================
+
+&&multiplayer_simbattle_btn 加入模擬
+&&multiplayer_simbattle_title 進行多人模擬
+&&multiplayer_simbattle_noroom 暫無模擬戰房間可加入
+&&multiplayer_simbattle_hostsubtitle 主持房間中（&1/&2 已連接） 等待中
+&&multiplayer_simbattle_clientsubtitle 處於房間中（&1/&2 已連接） 等待中
+&&multiplayer_simbattle_name &1的模擬戰
+&&multiplayer_simbattle_simstate 當前模擬戰地圖狀態：
+&&multiplayer_simbattle_synced 已同步
+&&multiplayer_simbattle_unsynced 未同步
+&&multiplayer_simbattle_synchint 可點擊下方按鈕同步模擬戰地圖
+&&multiplayer_simbattle_syncmap 同步模擬戰地圖
+&&multiplayer_simbattle_readytitle 當前已準備人數（&1/&2）
+&&multiplayer_simbattle_readyhint 當所有玩家均準備完畢後即可開始多人模擬戰
+&&multiplayer_simbattle_readyhint1 請點擊下方按鈕進行準備
+&&multiplayer_simbattle_ready 已準備
+&&multiplayer_simbattle_unready 準備
+&&multiplayer_simbattle_syncfirst 請先同步模擬戰地圖
+
+/* ___ Desc_multiplayer_simbattle_invalidspawn ___ */
+多人模式暫不支持直接在這裏修改起始點
+請在多人模擬戰頁面配置出生點
+
+/* ___ Desc_multiplayer_simbattle_invalidspawndetected ___ */
+發現未配置的個人出生點！
+點擊下方右側按鈕進行配置，所有未配置的玩家將爲默認出生點
+
+/* ___ Desc_multiplayer_simbattle_noinvalidspawn ___ */
+所有玩家都已配置個人出生點✓
+
+&&multiplayer_simbattle_defaultspawn 默認出生點
+&&multiplayer_simbattle_setdefaultspawn 設置默認出生點
+&&multiplayer_simbattle_playerspawn 玩家出生點
+&&multiplayer_simbattle_checkspawn 查看當前玩家出生點
+&&multiplayer_simbattle_player 玩家
+&&multiplayer_simbattle_default 未配置，缺省爲默認值
+&&multiplayer_simbattle_chooseplayer 選擇一名角色...
+
+&&multiplayer_room_code 房間碼
+&&multiplayer_room_code_hint 把房間碼發給朋友，等對方入房後點確定開始遊戲
+&&multiplayer_room_code_collecting 正在收集候選位址…
+&&multiplayer_copy_room_code 複製房間碼
+&&multiplayer_direct_hint 進階：直接填主機 IP + 連接埠可跳過房間碼（需要主機已做連接埠轉發）
+&&multiplayer_waiting 正在入房…
+&&multiplayer_joining 正在連線主機…
+&&multiplayer_waiting_host 等待主機握手…
+&&multiplayer_receiving_save 正在接收存檔
+&&multiplayer_room_code_no_rejoin_hint 進入遊戲後會沿用同一條連線，不會重連
+&&multiplayer_native_missing 原生網路函式庫不可用，連線已停用
+&&multiplayer_join_bad_code 房間碼無效
+&&multiplayer_join_punch_timeout 直連打洞失敗。NAT 可能限制入站，請檢查房主連接埠映射或使用可達的網路。
+&&multiplayer_join_handshake_failed 握手失敗
+&&multiplayer_join_room_full 房間已滿
+&&mpconfig_enable_stun STUN（公網候選）

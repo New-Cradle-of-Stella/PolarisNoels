@@ -1,8 +1,8 @@
 ﻿using HarmonyLib;
 using nel;
-using WeNeedMoreNoels.SN;
+using PolarisNoels.SN;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(PR), nameof(PR.applyGasDamage), [typeof(MistManager.MistKind), typeof(float)])]
     public class Patch_PR_applyGasDamage

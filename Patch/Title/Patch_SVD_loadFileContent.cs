@@ -2,7 +2,7 @@
 using nel;
 using PixelLiner.PixelLinerLib;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(SVD), nameof(SVD.loadFileContent))]
     public class Patch_SVD_loadFileContent

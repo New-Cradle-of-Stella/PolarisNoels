@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using nel;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(MgWaterShard), nameof(MgWaterShard.fnManipulateWaterShard))]
     public class Patch_MgWaterShard_fnManipulateWaterShard

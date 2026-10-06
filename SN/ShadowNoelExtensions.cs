@@ -2,10 +2,10 @@
 using nel;
 using nel.mgm.smncr;
 using UnityEngine;
-using WeNeedMoreNoels.DataStruct;
+using PolarisNoels.DataStruct;
 using XX;
 
-namespace WeNeedMoreNoels.SN
+namespace PolarisNoels.SN
 {
     public static class ShadowNoelExtensions
     {
@@ -67,8 +67,9 @@ namespace WeNeedMoreNoels.SN
         {
             ShadowNoelInstance ins = DB.noelIns[id];
             UpdateNoelInfo info = ins.NoelInfo;
-            ins.MpKey = info.MpKey;
-            if (ins.MpKey != DB.MainPR.Mp.key)
+            ins.MpKey = PolarisNoelsTools.peer?.GetPeerMap(id) ?? info.MpKey;
+            // 地图通知只更新可见性；等同图的新快照到达后再恢复角色，避免套用旧地图坐标。
+            if (ins.MpKey != DB.MainPR.Mp.key || info.MpKey != ins.MpKey)
             {
                 DisableShadowNoel(id);
                 return;
@@ -90,7 +91,7 @@ namespace WeNeedMoreNoels.SN
                 noel.CurState = (PR.STATE)info.State;
             }
             noel.PartyID = info.PartyID;
-            if (noel.PartyID != DB.LocalNoelParty && WNMNTools.EnablePVP)
+            if (noel.PartyID != DB.LocalNoelParty && PolarisNoelsTools.EnablePVP)
             {
                 EnableShadowNoelHit(noel);
             }
@@ -209,7 +210,7 @@ namespace WeNeedMoreNoels.SN
         {
             if (M2LpSummon.NearLpSmn is not null && M2LpSummon.NearLpSmn.key == key)
             {
-                WNMNTools.BattleStarterID = starterID;
+                PolarisNoelsTools.BattleStarterID = starterID;
                 DB.CurSummoner = M2LpSummon.NearLpSmn;
                 DB.CurEnemies.Clear();
                 M2LpSummon.NearLpSmn.openSummoner(DB.MainPR);
@@ -222,15 +223,15 @@ namespace WeNeedMoreNoels.SN
 
         public static void StartSimBattle(int starterID, int x, int y)
         {
-            if (WNMNTools.SimBattleReady)
+            if (PolarisNoelsTools.SimBattleReady)
             {
-                SmncStageEditorManager.StgObject stg = WNMNTools.CurSimFile.Astgo[0];
+                SmncStageEditorManager.StgObject stg = PolarisNoelsTools.CurSimFile.Astgo[0];
                 stg.x = x;
                 stg.y = y;
-                WNMNTools.CurSimFile.Astgo[0] = stg;
-                WNMNTools.BattleStarterID = starterID;
+                PolarisNoelsTools.CurSimFile.Astgo[0] = stg;
+                PolarisNoelsTools.BattleStarterID = starterID;
                 DB.CurEnemies.Clear();
-                WNMNTools.OpenSmncBattle();
+                PolarisNoelsTools.OpenSmncBattle();
             }
         }
 

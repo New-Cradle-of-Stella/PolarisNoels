@@ -2,7 +2,7 @@
 using m2d;
 using nel;
 
-namespace WeNeedMoreNoels.Patch
+namespace PolarisNoels.Patch
 {
     [HarmonyPatch(typeof(NelEnemy), nameof(NelEnemy.applyDamage), [typeof(NelAttackInfo), typeof(HITTYPE), typeof(bool)], [ArgumentType.Normal, ArgumentType.Ref, ArgumentType.Normal])]
     public class Patch_NelEnemy_applyDamage
