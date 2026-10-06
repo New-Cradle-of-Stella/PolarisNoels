@@ -214,6 +214,10 @@ namespace WeNeedMoreNoels
 
         public static void SendInitToAllPeers(int id)
         {
+            if (peer == null || !DB.partyInfos.TryGetValue(LocalID, out var localParty))
+            {
+                return;
+            }
             WNMNPeerMessage messageSend = new()
             {
                 Type = WNMNPeerMessageType.InitNoel,
@@ -625,10 +629,16 @@ namespace WeNeedMoreNoels
         public static void SetAllNickNameBgs()
         {
             ShadowNoelNickname nicknameIns = DB.MainPRNickname;
-            nicknameIns?.SetBgColor(DB.partyInfos[DB.LocalNoelParty].Color);
+            if (DB.partyInfos.TryGetValue(DB.LocalNoelParty, out var localParty))
+            {
+                nicknameIns?.SetBgColor(localParty.Color);
+            }
             foreach (var pair in DB.noelIns)
             {
-                pair.Value.NicknameIns?.SetBgColor(DB.partyInfos[pair.Value.Noel.PartyID].Color);
+                if (DB.partyInfos.TryGetValue(pair.Value.Noel.PartyID, out var party))
+                {
+                    pair.Value.NicknameIns?.SetBgColor(party.Color);
+                }
             }
         }
 
@@ -637,10 +647,16 @@ namespace WeNeedMoreNoels
             switch (info.Type)
             {
                 case UpdatePeerType.Nickname:
-                    DB.peerConfigs[id].Nickname = info.NickName;
+                    if (DB.peerConfigs.TryGetValue(id, out var cfg))
+                    {
+                        cfg.Nickname = info.NickName;
+                    }
                     break;
                 case UpdatePeerType.Party:
-                    DB.noelIns[id].Noel.PartyID = info.PartyID;
+                    if (DB.noelIns.TryGetValue(id, out var ins))
+                    {
+                        ins.Noel.PartyID = info.PartyID;
+                    }
                     break;
             }
         }
@@ -661,9 +677,13 @@ namespace WeNeedMoreNoels
 
         public static void Kick(int id)
         {
+            if (!PeerDic.TryGetValue(id, out NetPeer target))
+            {
+                return;
+            }
             NetDataWriter writer = new();
             writer.Put(true);
-            PeerDic[id].Disconnect(writer);
+            target.Disconnect(writer);
             PeerDic.Remove(id);
         }
 
@@ -691,7 +711,10 @@ namespace WeNeedMoreNoels
             }
             else
             {
-                DB.noelIns[id].Noel.MsgIns?.ShowMsg(txtID);
+                if (DB.noelIns.TryGetValue(id, out var ins))
+                {
+                    ins.Noel.MsgIns?.ShowMsg(txtID);
+                }
             }
         }
 
@@ -702,7 +725,7 @@ namespace WeNeedMoreNoels
                 return;
             }
             NelItem item = NelItem.GetById(key);
-            if (item is null)
+            if (item is not null)
             {
                 DB.MainPR.NM2D.IMNG.getItem(item, count, grade);
             }
@@ -715,7 +738,7 @@ namespace WeNeedMoreNoels
                 return;
             }
             NelItem item = NelItem.GetById(key);
-            if (item is null)
+            if (item is not null)
             {
                 DB.MainPR.NM2D.IMNG.reduceItem(item, count, grade);
             }
@@ -792,7 +815,7 @@ namespace WeNeedMoreNoels
                 EnemySynchronizerSyncClient client = nelEnemy.gameObject.AddComponent<EnemySynchronizerSyncClient>();
                 client.SyncID = sync_id;
                 client.PeerID = peer_id;
-                DB.SyncClients.Add(sync_id, client);
+                DB.SyncClients[sync_id] = client;
                 if (!DB.peerClients.ContainsKey(peer_id))
                 {
                     DB.peerClients.Add(peer_id, []);
@@ -849,7 +872,10 @@ namespace WeNeedMoreNoels
 
         public static void CleanUpEnemy(int syncID)
         {
-            EnemySynchronizerSyncClient client = DB.SyncClients[syncID];
+            if (!DB.SyncClients.TryGetValue(syncID, out EnemySynchronizerSyncClient client) || client == null)
+            {
+                return;
+            }
             if (client.Alive)
             {
                 NelEnemy enemy = client.GetComponent<NelEnemy>();
@@ -861,7 +887,10 @@ namespace WeNeedMoreNoels
 
         public static void NotifyEnemyDamage(int syncID, NotifyEnemyDamage damage)
         {
-            DB.SyncHosts[syncID].DamageEnemy(damage.hp, damage.mp);
+            if (DB.SyncHosts.TryGetValue(syncID, out var syncHost) && syncHost != null)
+            {
+                syncHost.DamageEnemy(damage.hp, damage.mp);
+            }
         }
 
         public static bool HasSyncEnemy()
@@ -891,7 +920,7 @@ namespace WeNeedMoreNoels
 
         public static void CheckEnemyEmptyAndEndBattle()
         {
-            if (DB.IsInBattle && !HasSyncEnemy() && BattleStartT - Time.time > 1f)
+            if (DB.IsInBattle && !HasSyncEnemy() && Time.time - BattleStartT > 1f)
             {
                 ShadowNoelExtensions.EndCurMapBattle();
             }

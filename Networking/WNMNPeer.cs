@@ -53,20 +53,31 @@ namespace WeNeedMoreNoels.Networking
         {
             byte[] receivedData = new byte[reader.UserDataSize];
             reader.GetBytes(receivedData, reader.UserDataSize);
-            using MemoryStream stream = new();
-            stream.Write(receivedData, 0, receivedData.Length);
-            stream.Seek(0, SeekOrigin.Begin);
-            WNMNPeerMessage message = Serializer.Deserialize<WNMNPeerMessage>(stream);
+            reader.Recycle();
+            WNMNPeerMessage message;
+            try
+            {
+                using MemoryStream stream = new(receivedData);
+                message = Serializer.Deserialize<WNMNPeerMessage>(stream);
+            }
+            catch (System.Exception e)
+            {
+                Plugin.Logger.LogWarning($"bad peer message dropped: {e.Message}");
+                return;
+            }
             foreach (PeerReceiveMessageBase receive in ReceiveMessageManager.GetAllReceives(message))
             {
-                if (receive.CheckMessage(message))
+                try
                 {
-                    receive.ReceiveMessage(message);
+                    if (receive.CheckMessage(message))
+                    {
+                        receive.ReceiveMessage(message);
+                    }
                 }
-            }
-            if (!DB.peerDelays.ContainsKey(message.PeerId))
-            {
-                DB.peerDelays.Add(message.PeerId, 0);
+                catch (System.Exception e)
+                {
+                    Plugin.Logger.LogError($"{receive.GetType().Name} failed: {e}");
+                }
             }
             DB.peerDelays[message.PeerId] = peer.Ping;
         }

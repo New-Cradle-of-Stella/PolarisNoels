@@ -72,7 +72,10 @@ namespace WeNeedMoreNoels.CSNetworking
             };
             NetDataWriter writer = new();
             writer.Put(JsonConvert.SerializeObject(message));
-            WNMNTools.PeerDic[id].Send(writer, DeliveryMethod.ReliableOrdered);
+            if (WNMNTools.PeerDic.TryGetValue(id, out NetPeer target))
+            {
+                target.Send(writer, DeliveryMethod.ReliableOrdered);
+            }
         }
 
         private void TransferListener_ConnectionRequestEvent(ConnectionRequest request)
@@ -120,13 +123,14 @@ namespace WeNeedMoreNoels.CSNetworking
             };
             writer.Put(JsonConvert.SerializeObject(message));
             peer.Send(writer, DeliveryMethod.ReliableOrdered);
-            WNMNTools.PeerDic.Add(id, peer);
+            WNMNTools.PeerDic[id] = peer;
         }
 
         private void Listener_NetworkReceiveEvent(NetPeer peer, NetPacketReader reader, DeliveryMethod deliveryMethod)
         {
             Plugin.Logger.LogInfo("host got message");
             string json = reader.GetString();
+            reader.Recycle();
             WNMNClientMessage message = JsonConvert.DeserializeObject<WNMNClientMessage>(json);
             WNMNTools.LocalIP = message.HostIP;
             if (!DB.peerInfos.ContainsKey(0))
@@ -142,20 +146,21 @@ namespace WeNeedMoreNoels.CSNetworking
                 IP = peer.EndPoint.Address.ToString(),
                 Port = message.Port
             };
-            DB.peerInfos.Add(message.ID, info);
+            DB.peerInfos[message.ID] = info;
             ClientConfig config = new()
             {
                 Nickname = message.NickName,
                 NoelType = message.NoelType,
                 NoelColor = message.NoelColor
             };
-            DB.peerConfigs.Add(message.ID, config);
+            DB.peerConfigs[message.ID] = config;
         }
 
         private void OnDestroy()
         {
-            host.DisconnectAll();
-            host.Stop();
+            host?.DisconnectAll();
+            host?.Stop();
+            transferHost?.Stop();
             DB.InitConfig = null;
         }
     }

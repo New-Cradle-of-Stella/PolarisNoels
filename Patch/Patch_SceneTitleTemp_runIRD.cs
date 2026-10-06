@@ -360,7 +360,7 @@ namespace WeNeedMoreNoels.Patch
                 {
                     h = 30f,
                     digit = 5,
-                    maxval = 25565
+                    maxval = 65535
                 });
                 IpInput.setNaviR(PortCon.Get(0), false, true);
                 PortCon.Get(0).setNaviL(IpInput, false, true);

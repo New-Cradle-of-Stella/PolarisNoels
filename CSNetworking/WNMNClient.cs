@@ -57,11 +57,15 @@ namespace WeNeedMoreNoels.CSNetworking
             peerID = message.InitID;
             WNMNTools.LocalID = message.InitID;
             WNMNTools.SimBattleSyncHost = message.SyncHost;
-            WNMNTools.SimBattleSyncList.AddRange(message.SyncConnectedList);
+            WNMNTools.SimBattleSyncList.Clear();
+            if (message.SyncConnectedList != null)
+            {
+                WNMNTools.SimBattleSyncList.AddRange(message.SyncConnectedList);
+            }
             DB.LocalNoelParty = message.InitID;
             DB.partyInfos = message.PeerParties.Select(x => x.Value).ToDictionary(x => x.ID);
             PartyManager.Party party = PartyManager.InitNewParty(message.InitID);
-            DB.partyInfos.Add(message.InitID, party);
+            DB.partyInfos[message.InitID] = party;
             WNMNTools.LocalIP = message.ClientIP;
             WNMNTools.ConnectOtherPeer(message.PeerInfos, peer, message.HostPort);
             WNMNTools.GenerateAllNoels(message.PeerConfigs);
@@ -96,14 +100,24 @@ namespace WeNeedMoreNoels.CSNetworking
                 DB.WNMNHostKicked = true;
             }
             DB.WNMNHostClosed = true;
-            ((NelM2DBase)DB.MainPR.M2D).quitGame("SceneTitle");
+            if (DB.MainPR != null)
+            {
+                ((NelM2DBase)DB.MainPR.M2D).quitGame("SceneTitle");
+            }
         }
 
         private void OnDestroy()
         {
-            NetDataWriter writer = new();
-            writer.Put(peerID);
-            client.DisconnectPeer(hostPeer, writer);
+            if (client == null)
+            {
+                return;
+            }
+            if (hostPeer != null)
+            {
+                NetDataWriter writer = new();
+                writer.Put(peerID);
+                client.DisconnectPeer(hostPeer, writer);
+            }
             client.Stop();
         }
     }
