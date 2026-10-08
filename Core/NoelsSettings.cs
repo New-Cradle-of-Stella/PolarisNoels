@@ -13,7 +13,16 @@ namespace PolarisNoels
         [PolarisSetting("最大玩家数", Desc = "含主机，2~8。", Min = 2, Max = 8, Step = 1)]
         public static int MaxPlayers = 5;
 
-        [PolarisSetting("使用 STUN", Desc = "用 STUN 收集公网候选；关闭则只走内网/直连。")]
+        [PolarisSetting("&mpconfig_enable_stun", Desc = "用 STUN 收集公网候选；关闭则只走内网/直连。")]
         public static bool EnableStun = true;
+
+        // 下面两项只在联机中有意义，平时不占设置页的位置。
+        [PolarisSetting("&Config_mpconfig_show_nicknames", Desc = "&Config_desc_mpconfig_show_nicknames", VisibleWhen = nameof(InMultiplayer))]
+        public static bool ShowNicknames = true;
+
+        [PolarisSetting("&Config_mpconfig_show_delay", Desc = "&Config_desc_mpconfig_show_delay", VisibleWhen = nameof(InMultiplayer))]
+        public static bool ShowDelay = true;
+
+        static bool InMultiplayer => DB.IsMultiplayer;
     }
 }
