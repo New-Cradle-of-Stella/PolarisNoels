@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using Polaris;
 using PolarisNoels.DataStruct;
 using XX;
 
@@ -51,24 +52,11 @@ namespace PolarisNoels
             string assetOriginPath = Path.Combine(assetPath, "PolarisNoelsResources\\");
             string localPxlPath = Path.Combine(assetOriginPath, "pxls\\");
             string localPicPath = Path.Combine(assetOriginPath, "pics\\");
-            string localLocalizationPath = Path.Combine(assetPath, "localization\\");
-            string L_zhPath = Path.Combine(localLocalizationPath, "zh-cn\\");
-            string L_zhtcPath = Path.Combine(localLocalizationPath, "zh-tc\\");
-            string L_enPath = Path.Combine(localLocalizationPath, "en\\");
-            string L_jpPath = Path.Combine(localLocalizationPath, "_\\");
-            string L_krPath = Path.Combine(localLocalizationPath, "ko-kr\\");
-            string L_thPath = Path.Combine(localLocalizationPath, "th\\");
             string pluginFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "BepInEx", "plugins");
             string pluginPath = Path.Combine(pluginFolderPath, "PolarisNoels");
             string pluginPxlPath = Path.Combine(pluginPath, "pxls\\");
             string pluginPicPath = Path.Combine(pluginPath, "pics\\");
             string pluginResPath = Path.Combine(pluginPath, "resources\\");
-            string zhPath = Path.Combine(pluginPath, "zh-cn\\");
-            string zhtcPath = Path.Combine(pluginPath, "zh-tc\\");
-            string enPath = Path.Combine(pluginPath, "en\\");
-            string jpPath = Path.Combine(pluginPath, "_\\");
-            string krPath = Path.Combine(pluginPath, "ko-kr\\");
-            string thPath = Path.Combine(pluginPath, "th\\");
             if (!Directory.Exists(assetOriginPath))
             {
                 Directory.CreateDirectory(assetOriginPath);
@@ -97,12 +85,8 @@ namespace PolarisNoels
                 string targetFile = assetOriginPath + file.Name;
                 File.Copy(file.FullName, targetFile, true);
             }
-            File.Copy(zhPath + $"zh-cn{LOCALIZATION_FILE_NAME}.txt", L_zhPath + $"zh-cn{LOCALIZATION_FILE_NAME}.txt", true);
-            File.Copy(zhtcPath + $"zh-tc{LOCALIZATION_FILE_NAME}.txt", L_zhtcPath + $"zh-tc{LOCALIZATION_FILE_NAME}.txt", true);
-            File.Copy(enPath + $"en{LOCALIZATION_FILE_NAME}.txt", L_enPath + $"en{LOCALIZATION_FILE_NAME}.txt", true);
-            File.Copy(jpPath + $"_{LOCALIZATION_FILE_NAME}.txt", L_jpPath + $"_{LOCALIZATION_FILE_NAME}.txt", true);
-            File.Copy(krPath + $"ko-kr{LOCALIZATION_FILE_NAME}.txt", L_krPath + $"ko-kr{LOCALIZATION_FILE_NAME}.txt", true);
-            File.Copy(thPath + $"th{LOCALIZATION_FILE_NAME}.txt", L_thPath + $"th{LOCALIZATION_FILE_NAME}.txt", true);
+            // 文案文件交给 Core 直接读，不再拷进游戏的 StreamingAssets。
+            PolarisAPI.Localization.AddTextFiles(pluginPath, LOCALIZATION_FILE_NAME);
             Plugin.Logger.LogInfo("PolarisNoels resources load complete!");
             MTRExtension.localPicPath = localPicPath;
         }
