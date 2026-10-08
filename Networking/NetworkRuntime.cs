@@ -31,14 +31,14 @@ namespace PolarisNoels.Networking
 
         public static INetTransport Transport { get; private set; }
 
-        /// <summary>0 = 随机端口；由 BepInEx 配置 Network/BindPort 写入。</summary>
-        public static int BindPort { get; set; }
+        /// <summary>0 = 随机端口；值存在 Polaris 设置页（<see cref="NoelsSettings"/>）。</summary>
+        public static int BindPort => NoelsSettings.BindPort;
 
         /// <summary>STUN 开关；由 BepInEx 配置与游戏内设置共同决定。</summary>
-        public static bool EnableStun { get; set; } = true;
+        public static bool EnableStun { get => NoelsSettings.EnableStun; set => NoelsSettings.EnableStun = value; }
 
         /// <summary>BepInEx 配置的网络人数上限（与游戏内 DB.MaxPlayerCount 取较小值）。</summary>
-        public static int ConfiguredMaxPeers { get; set; } = 5;
+        public static int ConfiguredMaxPeers => NoelsSettings.MaxPlayers;
 
         public static HostSession Host { get; private set; }
 
