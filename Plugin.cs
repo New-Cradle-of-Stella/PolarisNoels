@@ -2,6 +2,7 @@
 using BepInEx.Logging;
 using BepInEx.Unity.Mono;
 using nel.title;
+using nel.gm;
 using Polaris;
 using XX;
 using System;
@@ -27,6 +28,10 @@ namespace PolarisNoels
             // 标题菜单的"多人"按钮：交给 Core 的 MainMenu 统一管理按钮列表与排版（插在"设置"之前），
             // 不再自己用转译器改 initButtons，也就不会和其它加按钮的模组互相打架。
             PolarisAPI.MainMenu.AddButton("&&btn_multiplayer", OnMultiplayerButton, insertIndex: 2);
+
+            // 暂停菜单的"联机"分类：按钮、内容槽位、高度自适应都归 Core；联机中才显示，进出联机时调 Refresh 重建分类栏。
+            PolarisAPI.GameMenu.AddCategory("multiplayer", "multiplayer_cata",
+                (menu, categ) => new UiGMCMultiplayer(menu, categ), () => DB.IsMultiplayer);
 
             Logger.LogMessage(Environment.NewLine + LOGO_PLUGIN +
                               Environment.NewLine + $"Version {Assembly.GetExecutingAssembly().GetName().Version}" +

@@ -504,6 +504,8 @@ namespace PolarisNoels
 
         public override void initEdit()
         {
+            // 进入编辑时把焦点落到右侧第一个可操作的按钮上。
+            UiMenuMul.SendMsgButton?.Select(true);
         }
 
         public override void quitEdit()
