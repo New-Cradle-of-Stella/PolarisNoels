@@ -8,6 +8,8 @@ using UnityEngine;
 using Polaris;
 using Polaris.Res;
 using Polaris.Res.Import;
+using Polaris.Res.Pxls;
+using System.Linq;
 using PolarisNoels.DataStruct;
 using XX;
 
@@ -74,18 +76,16 @@ namespace PolarisNoels
             }
         }
 
-        /// <summary>游戏资源目录（StreamingAssets）下放本模组素材的文件夹名；pxls 路径字符串里也用到它。</summary>
+        /// <summary>构造 <c>PrPoseContainer</c> 时要的 pxl_dir；Core 加载的 pxls 不走它，仅为满足构造参数。</summary>
         const string GameResDir = "PolarisNoelsResources";
 
         public static void Load()
         {
             Plugin.Logger.LogInfo("start loading PolarisNoels resources..");
 
-            // 动画（pxls）走游戏自己的加载器，它只认 StreamingAssets，所以只把 pxls 摆过去；Core 只复制新增或有变化的文件。
-            // 预览图和标题图是普通 PNG，直接由 Core 的 Res 从模组目录加载，不用拷。
+            // 素材（pxls、预览图、标题图）都由 Core 的 Res 直接从模组目录加载，不再往游戏的 StreamingAssets 里拷。
             string pluginPath = Path.GetDirectoryName(typeof(MTRExtension).Assembly.Location);
             res = ResAPI.For(MyPluginInfo.PLUGIN_GUID, pluginPath);
-            res.MountToGame("pxls", GameResDir + "/pxls");
 
             // 文案文件交给 Core 直接读，不拷进游戏目录。
             PolarisAPI.Localization.AddTextFiles(pluginPath, LOCALIZATION_FILE_NAME);
@@ -119,29 +119,65 @@ namespace PolarisNoels
             }
         }
 
-        public static PrPoseContainer LoadExtenalPxl(string[][] pxlPath, string name)
+        /// <summary>用 Core 的 Res 加载的 pxls：容器 → 它名下各角色的加载句柄。游戏原有的"重新载入贴图"流程认不得这些角色，靠它识别并绕开。</summary>
+        static readonly Dictionary<PrPoseContainer, List<PxlsCharacterHandle>> coreLoaded = [];
+
+        /// <summary>角色租约在进程生命周期内一直持有，不释放。</summary>
+        static readonly List<IDisposable> pxlLeases = [];
+
+        /// <summary>该容器是不是由 Core 的 Res 加载的 pxls 组成的。</summary>
+        public static bool IsCoreLoaded(PrPoseContainer container) => container != null && coreLoaded.ContainsKey(container);
+
+        /// <summary>容器名下的角色是否都已加载完、贴图已换好。</summary>
+        public static bool AllReady(PrPoseContainer container)
         {
-            LoadTicketManager.PrepareLoadManager();
-            LoadTicketManager instance = LoadTicketManager.Instance;
-            int num = pxlPath.Length;
-            for (int i = 0; i < num; i++)
+            if (!coreLoaded.TryGetValue(container, out List<PxlsCharacterHandle> handles))
             {
-                int num2 = pxlPath[i].Length;
-                for (int j = 0; j < num2; j++)
+                return false;
+            }
+
+            foreach (PxlsCharacterHandle handle in handles)
+            {
+                if (!handle.IsReady)
                 {
-                    string text = GameResDir + "/pxls/" + pxlPath[i][j] + ".pxls";
-                    MTIOneImage mtioneImage;
-                    PxlCharacter pxlCharacter = MTRX.loadMtiPxc(out mtioneImage, pxlPath[i][j], text, "_", true, true, true);
-                    instance.AddTicketInner(pxlCharacter, mtioneImage, 1);
+                    return false;
                 }
             }
+
+            return true;
+        }
+
+        /// <summary>
+        /// 通过 Core 的 Res 从模组目录加载 pxls（原始 <c>.pxls</c> 加同名图集 PNG），并登记成游戏里按原名查找的角色，
+        /// 所以 <c>PrPoseContainer.iniPxlResourcesASync</c> 照旧用名字取角色。加载是异步的，那边会等到加载完成。
+        /// </summary>
+        public static PrPoseContainer LoadExtenalPxl(string[][] pxlPath, string name)
+        {
+            var handles = new List<PxlsCharacterHandle>();
+            foreach (string[] group in pxlPath)
+            {
+                foreach (string pxlName in group)
+                {
+                    // 原版素材是 Bilinear 过滤；Title 取原名，PrPoseContainer 按它查角色。
+                    IResourceLease<PxlsCharacterHandle> lease = res.Pxls("pxls/" + pxlName + ".pxls", new PxlsImportSettings
+                    {
+                        Title = pxlName,
+                        Texture = ImageSettings,
+                    });
+                    pxlLeases.Add(lease);
+                    handles.Add(lease.Value);
+                }
+            }
+
             CaneManager.reloadScript(false);
-            return new PrPoseContainer(name, GameResDir + "/pxls/", "_", delegate (PxlFrame F, float rCLENB)
+            var container = new PrPoseContainer(name, GameResDir + "/pxls/", "_", delegate (PxlFrame F, float rCLENB)
             {
                 float num3;
                 float num4;
                 return M2PxlAnimator.getRodPosS(rCLENB, F, out num3, out num4, "rod", "ROD", 0.5f, 0f, ALIGN.LEFT, ALIGNY.MIDDLE, 2, "rodeff");
             });
+            coreLoaded[container] = handles;
+            return container;
         }
 
         public static MImage LoadImage(NoelType type, int index)
