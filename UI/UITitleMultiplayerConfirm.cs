@@ -12,8 +12,7 @@ namespace PolarisNoels
 
         public override int prepareMesh(MeshDrawer Md, int start_id)
         {
-            MTI mti = MTI.LoadContainer("PolarisNoelsResources\\multiplayer");
-            MImage image = mti.LoadImage("multiplayer");
+            MImage image = MTRExtension.MultiplayerImage;
             Md.chooseSubMesh(start_id, false, false);
             Md.setMaterial(image.getMtr(BLEND.NORMAL, -1), false);
             return 1;

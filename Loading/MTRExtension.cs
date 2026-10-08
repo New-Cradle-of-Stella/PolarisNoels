@@ -7,6 +7,7 @@ using System.IO;
 using UnityEngine;
 using Polaris;
 using Polaris.Res;
+using Polaris.Res.Import;
 using PolarisNoels.DataStruct;
 using XX;
 
@@ -44,7 +45,34 @@ namespace PolarisNoels
 
         public const string LOCALIZATION_FILE_NAME = "_polarisnoels_localization";
 
-        static string localPicPath;
+        /// <summary>本模组的 Core 资源句柄；预览图和标题图用它按 PNG 加载。</summary>
+        static ModResources res;
+
+        /// <summary>图片租约在进程生命周期内一直持有，不释放（这些图整个游戏期间都要用）。</summary>
+        static readonly List<IDisposable> imageLeases = [];
+
+        static readonly TextureImportSettings ImageSettings = new() { FilterMode = FilterMode.Bilinear };
+
+        /// <summary>标题"多人"确认页用的大图；首次取用时才加载，之后复用。</summary>
+        public static MImage MultiplayerImage => multiplayerImage ??= LoadModImage("resources/multiplayer.png");
+
+        static MImage multiplayerImage;
+
+        /// <summary>从模组目录加载一张 PNG 成游戏的 <see cref="MImage"/>；找不到或解码失败时记日志并返回 null。</summary>
+        public static MImage LoadModImage(string path)
+        {
+            try
+            {
+                IResourceLease<MImage> lease = res.Image(path, ImageSettings);
+                imageLeases.Add(lease);
+                return lease.Value;
+            }
+            catch (Exception ex)
+            {
+                Plugin.Logger.LogError($"Failed to load image {path}: {ex.Message}");
+                return null;
+            }
+        }
 
         /// <summary>游戏资源目录（StreamingAssets）下放本模组素材的文件夹名；pxls 路径字符串里也用到它。</summary>
         const string GameResDir = "PolarisNoelsResources";
@@ -53,24 +81,14 @@ namespace PolarisNoels
         {
             Plugin.Logger.LogInfo("start loading PolarisNoels resources..");
 
-            // 游戏自己的加载器只认 StreamingAssets，所以素材要摆过去；Core 只复制新增或有变化的文件，不再每次启动全量覆盖。
+            // 动画（pxls）走游戏自己的加载器，它只认 StreamingAssets，所以只把 pxls 摆过去；Core 只复制新增或有变化的文件。
+            // 预览图和标题图是普通 PNG，直接由 Core 的 Res 从模组目录加载，不用拷。
             string pluginPath = Path.GetDirectoryName(typeof(MTRExtension).Assembly.Location);
-            ModResources res = ResAPI.For(MyPluginInfo.PLUGIN_GUID, pluginPath);
+            res = ResAPI.For(MyPluginInfo.PLUGIN_GUID, pluginPath);
             res.MountToGame("pxls", GameResDir + "/pxls");
-            string picDir = res.MountToGame("pics", GameResDir + "/pics");
-            res.MountToGame("resources", GameResDir);
 
             // 文案文件交给 Core 直接读，不拷进游戏目录。
             PolarisAPI.Localization.AddTextFiles(pluginPath, LOCALIZATION_FILE_NAME);
-
-            if (picDir == null)
-            {
-                Plugin.Logger.LogWarning("PolarisNoels pics folder is missing; preview images will not load.");
-            }
-            else
-            {
-                localPicPath = picDir + Path.DirectorySeparatorChar;
-            }
 
             Plugin.Logger.LogInfo("PolarisNoels resources load complete!");
         }
@@ -138,7 +156,7 @@ namespace PolarisNoels
             {
                 name = "preview_noel" + index.ToString().PadLeft(2, '0');
             }
-            return MTI.LoadContainerOneImage(localPicPath + name).MI;
+            return LoadModImage("pics/" + name + ".png");
         }
 
         public static MImage LoadImage(ColorNoelColor color, int index)
@@ -149,7 +167,7 @@ namespace PolarisNoels
             }
             string name = PreviewPrefix + color.ToString() + index.ToString().PadLeft(2, '0');
             name = name.ToLower();
-            return MTI.LoadContainerOneImage(localPicPath + name).MI;
+            return LoadModImage("pics/" + name + ".png");
         }
     }
 }
