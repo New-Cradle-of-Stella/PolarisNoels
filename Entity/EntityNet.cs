@@ -78,6 +78,8 @@ namespace PolarisNoels
             SendSpawn(EntityIds.ForPlayer(PolarisNoelsTools.LocalID), new EntitySpawn
             {
                 Kind = EntityKind.Noel,
+                Life = DB.MainPR?.GetComponent<NetEntity>()?.Life,
+                CombatEpoch = CombatSync.LocalEpoch,
                 Noel = new IniConfig
                 {
                     Id = PolarisNoelsTools.LocalID,
@@ -148,13 +150,25 @@ namespace PolarisNoels
             {
                 return;
             }
-            // 状态/生成/销毁只能由实体所有者发出；伤害请求允许其他玩家发送。
-            bool damageRequest = m.Type == EntityMsgType.Event && m.Event?.Type == EntityEventType.Damage;
-            if (!damageRequest && EntityIds.Owner(m.EntityId) != message.PeerId) return;
+            // 旧版裸伤害请求不能重放：副本上的攻击已经在目标所有者处重现并结算。
+            if (m.Type == EntityMsgType.Event && m.Event?.Type == EntityEventType.Damage) return;
+            if (m.Type == EntityMsgType.Event && m.Event?.Type == EntityEventType.DamageRequest)
+            {
+                CombatSync.ReceiveRequest(message.PeerId, m.EntityId, m.Event.Request);
+                return;
+            }
+            if (m.Type == EntityMsgType.Event && m.Event?.Type == EntityEventType.DamageResult)
+            {
+                CombatSync.ReceiveResult(message.PeerId, m.EntityId, m.Event.Result);
+                return;
+            }
+            if (EntityIds.Owner(m.EntityId) != message.PeerId) return;
             switch (m.Type)
             {
                 case EntityMsgType.Spawn:
+                    if (!CombatSync.AcceptSpawn(m.EntityId, message.PeerId, m.Spawn)) return;
                     EntityFactory.OnSpawn(m.EntityId, message.PeerId, m.Spawn);
+                    if (EntityRegistry.TryGet(m.EntityId, out var spawned)) CombatSync.ApplyPendingState(spawned);
                     break;
                 case EntityMsgType.State:
                     OnState(m);
@@ -166,6 +180,7 @@ namespace PolarisNoels
                     }
                     break;
                 case EntityMsgType.Despawn:
+                    CombatSync.ForgetSpawn(m.EntityId);
                     EntityFactory.ForgetPendingSpawn(m.EntityId);
                     if (EntityRegistry.TryGet(m.EntityId, out NetEntity gone) && gone.Role == EntityRole.Replica && gone.Kind != EntityKind.Noel)
                     {
@@ -185,6 +200,7 @@ namespace PolarisNoels
                 }
                 return;
             }
+            if (!CombatSync.CacheState(m.EntityId, m.State)) return;
             // 玩家不在本地图时没有对应 Mover，但仍需记录最新状态（含所在地图），以便对方进入同图时立刻出现
             if (EntityIds.IsPlayer(m.EntityId) && m.State?.Noel != null)
             {

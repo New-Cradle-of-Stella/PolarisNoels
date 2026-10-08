@@ -22,6 +22,8 @@ namespace PolarisNoels.Networking
         public bool IsPeerOnCurrentMap(int id) => maps.IsSameMap(id, CurrentMapKey);
 
         public string GetPeerMap(int id) => maps.GetPeerMap(id);
+        public string LocalMapVisit => maps.LocalVisit;
+        public string GetPeerMapVisit(int id) => id == PolarisNoelsTools.LocalID ? maps.LocalVisit : maps.GetPeerVisit(id);
 
         static INetTransport Transport => NetworkRuntime.Transport;
 
@@ -64,6 +66,7 @@ namespace PolarisNoels.Networking
         void AnnounceIfDue()
         {
             bool changedMap = maps.SetLocalMap(CurrentMapKey);
+            if (changedMap) CombatSync.OnLocalMapChanged();
             if (!changedMap && Time.time < nextAnnounce)
             {
                 return;
@@ -90,7 +93,7 @@ namespace PolarisNoels.Networking
             {
                 Type = PolarisNoelsPeerMessageType.UpdatePeerInfo,
                 PeerId = PolarisNoelsTools.LocalID,
-                UpdatePeerInfo = new() { Type = UpdatePeerType.Map, MapKey = mapKey, PositionX = x, PositionY = y }
+                UpdatePeerInfo = new() { Type = UpdatePeerType.Map, MapKey = mapKey, PositionX = x, PositionY = y, MapVisit = maps.LocalVisit }
             };
             if (targetId.HasValue) SendToPeer(targetId.Value, message, NetChannel.Reliable);
             else PolarisNoelsTools.Broadcast(message);
@@ -113,6 +116,7 @@ namespace PolarisNoels.Networking
             PolarisNoelsTools.UpdateAllNoels();
             PolarisNoelsTools.SetAllNickNameBgs();
             BattleSession.Update();
+            CombatSync.Update();
         }
 
         void RefreshDelays()
@@ -149,7 +153,7 @@ namespace PolarisNoels.Networking
             if (message.PeerId != peerId) return;
             if (message.Type == PolarisNoelsPeerMessageType.UpdatePeerInfo && message.UpdatePeerInfo?.Type == UpdatePeerType.Map)
             {
-                bool changedMap = maps.SetPeerMap(message.PeerId, message.UpdatePeerInfo.MapKey);
+                bool changedMap = maps.SetPeerMap(message.PeerId, message.UpdatePeerInfo.MapKey, message.UpdatePeerInfo.MapVisit);
                 if (DB.noelIns.TryGetValue(message.PeerId, out var ins))
                 {
                     ins.MpKey = maps.GetPeerMap(message.PeerId);
@@ -169,6 +173,15 @@ namespace PolarisNoels.Networking
                     }
                     else EntityRegistry.DestroyReplicasOwnedBy(message.PeerId);
                 }
+            }
+            // A target owner on another map still needs to reject a request explicitly.
+            // Combat packets validate map visits and ownership themselves.
+            if (message.Type == PolarisNoelsPeerMessageType.Entity &&
+                (message.Entity?.Event?.Type == EntityEventType.DamageRequest || message.Entity?.Event?.Type == EntityEventType.DamageResult))
+            {
+                try { EntityNet.Receive(message); }
+                catch (System.Exception e) { Plugin.Logger.LogError($"combat message failed: {e}"); }
+                return;
             }
             // 可靠事件和数据报可能跨越切图边界；发送端过滤之外再挡住旧地图的包。
             if (!string.IsNullOrEmpty(message.MapKey)

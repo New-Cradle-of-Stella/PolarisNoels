@@ -7,9 +7,9 @@ namespace PolarisNoels.Patch
     public class Patch_M2PrADmgEffect_applyDamageAfter
     {
         [HarmonyPrefix]
-        static bool Prefix(object __instance)
+        static bool Prefix(M2PrADmgEffect __instance)
         {
-            return __instance is PRNoel;
+            return DamageAuthority.CanDamage(__instance.Pr);
         }
     }
 }

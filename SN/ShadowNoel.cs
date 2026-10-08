@@ -161,7 +161,9 @@ namespace PolarisNoels.SN
 
         public override HITTYPE getHitType(M2Ray Ray)
         {
-            return HITTYPE.EN;
+            // Enemy rays must be able to hit remote players too. Friendly player rays
+            // ignore them; opposing-party player rays also see the EN bit in PvP.
+            return base.getHitType(Ray) | (PolarisNoelsTools.EnablePVP && PartyID != DB.LocalNoelParty ? HITTYPE.EN : HITTYPE.NONE);
         }
 
         public override void deactivateFromMap()

@@ -135,6 +135,7 @@ namespace PolarisNoels.DataStruct
         public float PositionX;
         [ProtoMember(6)]
         public float PositionY;
+        [ProtoMember(7)] public string MapVisit;
     }
 
     [ProtoContract]

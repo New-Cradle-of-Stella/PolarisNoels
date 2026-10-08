@@ -120,6 +120,7 @@ namespace PolarisNoels
 
         public static void CleanUpClient(int id)
         {
+            CombatSync.RemovePeer(id);
             BattleSession.OnPeerDisconnected(id);
             ShadowNoelExtensions.DisableShadowNoel(id);
             DB.noelIns.Remove(id);

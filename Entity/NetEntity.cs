@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using System;
 using PolarisNoels.DataStruct;
 
 namespace PolarisNoels
@@ -31,6 +32,9 @@ namespace PolarisNoels
         /// <summary>该实体的所有者（Authority 一方）的 PeerId。</summary>
         public int OwnerPeer { get; private set; }
         public EntitySpawn SpawnInfo { get; internal set; }
+        public string Life { get; private set; }
+        public ulong Revision { get; private set; }
+        public double SampleTime { get; private set; }
         string initialMapKey;
         public string MapKey => IsLocalPlayer ? DB.MainPR?.Mp?.key : initialMapKey;
 
@@ -45,6 +49,7 @@ namespace PolarisNoels
             OwnerPeer = ownerPeer;
             Role = role;
             Kind = kind;
+            Life = role == EntityRole.Authority ? Guid.NewGuid().ToString("N") : CombatSync.GetReplicaLife(id);
             initialMapKey = DB.MainPR?.Mp?.key;
             foreach (IEntityModule module in mods)
             {
@@ -75,7 +80,9 @@ namespace PolarisNoels
             if (Role != EntityRole.Replica || registered || id < 0) return;
             Id = id;
             OwnerPeer = EntityIds.Owner(id);
+            Life = CombatSync.GetReplicaLife(id);
             Register();
+            CombatSync.ApplyPendingState(this);
         }
 
         void Register()
@@ -114,18 +121,35 @@ namespace PolarisNoels
 
         public void WriteState(EntityState state)
         {
+            state.Life = Life;
+            state.Revision = ++Revision;
+            state.SampleTime = SampleTime = Time.realtimeSinceStartup;
             foreach (IEntityModule module in modules)
             {
                 module.Write(state);
             }
+            state.Parts = CombatSync.CaptureParts(GetComponent<nel.NelEnemy>());
+            CombatSync.Record(this);
         }
 
         public void ReadState(EntityState state)
         {
+            if (state == null || state.Life != Life || state.Revision <= Revision) return;
+            Revision = state.Revision;
+            SampleTime = state.SampleTime;
             foreach (IEntityModule module in modules)
             {
                 module.Read(state);
             }
+            CombatSync.ApplyParts(GetComponent<nel.NelEnemy>(), state.Parts);
+        }
+
+        public void SetReplicaLife(string life)
+        {
+            if (IsAuthority || Life == life) return;
+            Life = life;
+            Revision = 0;
+            SampleTime = 0;
         }
 
         public void HandleEvent(EntityEvent ev)
@@ -136,20 +160,6 @@ namespace PolarisNoels
             }
         }
 
-        /// <summary>副本在本机被打：把伤害转发给所有者结算。</summary>
-        public void ReportLocalDamage(int hp, int mp)
-        {
-            if (Role != EntityRole.Replica || !registered)
-            {
-                return;
-            }
-            EntityNet.SendEvent(Id, new EntityEvent
-            {
-                Type = EntityEventType.Damage,
-                Damage = new NotifyNoelDamage { Hp = hp, Mp = mp }
-            });
-        }
-
         void OnDestroy()
         {
             if (!registered)
@@ -157,6 +167,7 @@ namespace PolarisNoels
                 return;
             }
             EntityRegistry.Unregister(this);
+            CombatSync.Forget(this);
             registered = false;
             if (IsAuthority && Kind != EntityKind.Noel)
             {

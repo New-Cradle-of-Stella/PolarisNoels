@@ -50,6 +50,7 @@ namespace PolarisNoels.SN
                 ? TX.Get("multiplayer_noel_nickname") + id.ToString()
                 : ins.NickNameStr);
             ins.NicknameIns = noel.NicknameIns;
+            CombatSync.ApplyPendingState(noel.GetComponent<NetEntity>());
             return noel;
         }
 
@@ -208,23 +209,6 @@ namespace PolarisNoels.SN
                 return;
             }
             noel.getSkillManager().switchCane(cane, grade, false);
-        }
-
-        /// <summary>把另一名玩家（副本）转来的伤害结算到本机玩家身上。</summary>
-        public static void DamageLocalNoel(NotifyNoelDamage dmg)
-        {
-            DB.MainPR.DMG.applyDamage(new NelAttackInfo
-            {
-                attr = MGATTR.NORMAL,
-                ndmg = NDMG.DEFAULT,
-                hpdmg0 = dmg.Hp,
-                mpdmg0 = dmg.Mp,
-                fix_damage = true,
-                parryable = false,
-                shield_break_ratio = 1f,
-                ignore_nodamage_time = true,
-                nodamage_time = 0,
-            }, true);
         }
 
         public static void StartCurMapBattle(string key, int starterID)

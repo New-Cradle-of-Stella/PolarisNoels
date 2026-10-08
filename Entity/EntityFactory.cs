@@ -49,7 +49,8 @@ namespace PolarisNoels
             IEntityModule module = isBoss ? new BossEnemyModule() : new EnemyModule();
             NetEntity entity = enemy.gameObject.AddComponent<NetEntity>()
                 .Setup(id, PolarisNoelsTools.LocalID, EntityRole.Authority, kind, module);
-            entity.SpawnInfo = new EntitySpawn { Kind = kind, Key = key, NativeReplica = nativeReplica };
+            entity.SpawnInfo = new EntitySpawn { Kind = kind, Key = key, NativeReplica = nativeReplica,
+                Life = entity.Life, CombatEpoch = CombatSync.LocalEpoch, NativeKey = nativeReplica ? enemy.key : null };
             BattleSession.RegisterEnemy(id, enemy);
             EntityNet.SendSpawn(id, entity.SpawnInfo);
         }
@@ -70,6 +71,7 @@ namespace PolarisNoels
             foreach (var pair in pendingNativeSpawns.ToList())
             {
                 var enemy = nativeReplicas.Keys.FirstOrDefault(e => e != null && nativeReplicas[e] == pair.Value.Key
+                    && e.key == pair.Value.NativeKey
                     && (e is NelEnemyBoss) == (pair.Value.Kind == EntityKind.Boss));
                 if (enemy == null) continue;
                 enemy.GetComponent<NetEntity>().BindReplicaId(pair.Key);
@@ -109,6 +111,7 @@ namespace PolarisNoels
             DB.CurEnemies.Add(enemy);
             enemy.gameObject.AddComponent<NetEntity>()
                 .Setup(id, ownerPeer, EntityRole.Replica, EntityKind.Enemy, new EnemyModule());
+            CombatSync.ApplyPendingState(enemy.GetComponent<NetEntity>());
         }
 
         /// <summary>销毁敌人副本（所有者那边的敌人消失或掉线）。</summary>

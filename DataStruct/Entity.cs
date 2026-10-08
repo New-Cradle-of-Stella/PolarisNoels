@@ -60,6 +60,9 @@ namespace PolarisNoels.DataStruct
         /// <summary>Boss/附属结构由原版创建为本地表现对象，再绑定发起者分配的实体 ID。</summary>
         [ProtoMember(4)]
         public bool NativeReplica;
+        [ProtoMember(5)] public string Life;
+        [ProtoMember(6)] public string CombatEpoch;
+        [ProtoMember(7)] public string NativeKey;
     }
 
     /// <summary>状态快照。每个模块只填写自己负责的那一段，其余为 null。</summary>
@@ -70,6 +73,10 @@ namespace PolarisNoels.DataStruct
         public UpdateNoelInfo Noel;
         [ProtoMember(2)]
         public UpdateEnemyInfo Enemy;
+        [ProtoMember(3)] public string Life;
+        [ProtoMember(4)] public ulong Revision;
+        [ProtoMember(5)] public double SampleTime;
+        [ProtoMember(6)] public System.Collections.Generic.List<CombatPart> Parts;
     }
 
     [ProtoContract]
@@ -81,16 +88,20 @@ namespace PolarisNoels.DataStruct
         public NotifyNoelDamage Damage;
         [ProtoMember(3)]
         public NotifyNoelMagic Magic;
+        [ProtoMember(4)] public CombatRequest Request;
+        [ProtoMember(5)] public CombatResult Result;
     }
 
     [ProtoContract]
     public enum EntityEventType
     {
-        /// <summary>副本被打 -> 通知所有者结算伤害</summary>
+        /// <summary>旧版裸伤害请求。保留枚举值以兼容协议解码，接收时直接丢弃。</summary>
         [ProtoEnum]
         Damage,
         /// <summary>所有者的魔法变化 -> 通知副本重现</summary>
         [ProtoEnum]
-        Magic
+        Magic,
+        [ProtoEnum] DamageRequest,
+        [ProtoEnum] DamageResult
     }
 }
