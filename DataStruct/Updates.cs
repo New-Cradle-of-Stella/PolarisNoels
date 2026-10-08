@@ -60,6 +60,9 @@ namespace PolarisNoels.DataStruct
         public int ShieldState;
         [ProtoMember(26)]
         public float HoldT;
+        /// <summary>原版装扮（<see cref="PRNoel.OUTFIT"/>）；旧版本发来的包没有这个字段，读出来是 0（NORMAL）。</summary>
+        [ProtoMember(27)]
+        public int Outfit;
     }
 
     [ProtoContract] 

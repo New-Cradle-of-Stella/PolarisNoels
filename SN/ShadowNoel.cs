@@ -16,6 +16,9 @@ namespace PolarisNoels.SN
 
         public STATE CurState;
 
+        /// <summary>该玩家当前的原版装扮，由同步快照写入；动画器按它挑姿势素材（见 Patch_PrNoelAnimator_outfit_type）。</summary>
+        public PRNoel.OUTFIT Outfit;
+
         public bool IsEvadeO;
         public bool IsAtkO;
 
