@@ -11,6 +11,8 @@ using PolarisNoels.Networking;
 
 namespace PolarisNoels
 {
+    [PolarisModInfo("Alon_, AAAA9731", "Multiplayer for Alice in Cradle (successor of WeHaveMoreNoels). 爱丽丝摇篮联机模组，WeHaveMoreNoels 的继任者。",
+        DisplayName = "Polaris Noels")]
     [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
     [BepInDependency("Polaris.Core")]
     public class Plugin : PolarisMod
