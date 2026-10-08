@@ -20,6 +20,10 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <PolarisCoreDir Condition="'$(PolarisCoreDir)' == ''">$(MSBuildProjectDirectory)\..\Polaris\Core\bin\Debug\netstandard2.1</PolarisCoreDir>
+  </PropertyGroup>
+
+  <PropertyGroup>
 	<GameAssembliesPath>$(GameRootPath)\AliceInCradle_Data\Managed</GameAssembliesPath>
   </PropertyGroup>
     
@@ -70,17 +74,26 @@
   </Target>
 
   <ItemGroup>
+    <!-- Polaris 核心库：编译期引用，运行时由 [BepInDependency("Polaris.Core")] 保证先加载。 -->
+    <Reference Include="PolarisCore">
+      <HintPath>$(PolarisCoreDir)\PolarisCore.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>D:\ZzqoQrtW_AliceInCradle Win ver030i\AliceInCradle Win ver030\AliceInCradle_ver030\AliceInCradle_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="pixelliner">
       <HintPath>D:\ZzqoQrtW_AliceInCradle Win ver030i\AliceInCradle Win ver030\AliceInCradle_ver030\AliceInCradle_Data\Managed\pixelliner.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="unsafeAssem">
       <HintPath>D:\ZzqoQrtW_AliceInCradle Win ver030i\AliceInCradle Win ver030\AliceInCradle_ver030\AliceInCradle_Data\Managed\unsafeAssem.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="better">
       <HintPath>D:\ZzqoQrtW_AliceInCradle Win ver030i\AliceInCradle Win ver030\AliceInCradle_ver030\AliceInCradle_Data\Managed\better.dll</HintPath>
+      <Private>false</Private>
     </Reference>
   </ItemGroup>
 </Project>

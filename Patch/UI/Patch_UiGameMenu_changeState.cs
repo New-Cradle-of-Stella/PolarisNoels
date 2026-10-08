@@ -9,14 +9,8 @@ namespace PolarisNoels.Patch
         [HarmonyPrefix]
         static bool Prefix(UiGameMenu __instance)
         {
-            UiMenuMul.BxP.deactivate();
-            UiMenuMul.BxPD.deactivate();
-            if (UiMenuMul.IsMulCata)
-            {
-                __instance.BxCategory.getBtn(10).Select(true);
-                UiMenuMul.IsMulCata = false;
-                return false;
-            }
+            UiMenuMul.BxP?.deactivate();
+            UiMenuMul.BxPD?.deactivate();
             return true;
         }
     }

@@ -81,6 +81,7 @@ namespace PolarisNoels.SN
             ShadowNoel noel = ins.Noel;
             MoveShadowNoel(noel, new(info.PositionX, info.PositionY));
             SetPoseShadowNoel(noel, info.Pose, (AIM)info.Aim);
+            SetOutfitShadowNoel(noel, (PRNoel.OUTFIT)info.Outfit);
             SetHPMP(noel, info.Hp, info.Mp);
             if (noel.getSkillManager().getCurrentCaneEquip().GetItem().id != info.CaneItemId)
             {
@@ -166,6 +167,26 @@ namespace PolarisNoels.SN
                 return;
             }
             Anm.setPose(pose);
+        }
+
+        /// <summary>
+        /// 同步原版装扮（破衣、睡衣、道场服、兔女郎……）。只对用原版动画的 Normal 类型生效：
+        /// 反色和彩色 Noel 的素材只有一套服装，套用别的下标会越界。装扮变了要重新取一次姿势（原版 <c>setOutfitType</c> 也是这么做的）。
+        /// </summary>
+        public static void SetOutfitShadowNoel(ShadowNoel noel, PRNoel.OUTFIT outfit)
+        {
+            if (noel.InitConfig?.NoelType != NoelType.Normal || outfit < 0 || outfit >= PRNoel.OUTFIT._MAX)
+            {
+                outfit = PRNoel.OUTFIT.NORMAL;
+            }
+
+            if (noel.Outfit == outfit)
+            {
+                return;
+            }
+
+            noel.Outfit = outfit;
+            noel.Anm?.finePose();
         }
 
         public static void SetHPMP(ShadowNoel noel, int hp, int mp)
@@ -303,7 +324,8 @@ namespace PolarisNoels.SN
                 ShieldScale = DB.MainPR.Skill.ShE.Shield.scale,
                 ShieldPow = DB.MainPR.Skill.ShE.Shield.pow,
                 ShieldState = (int)DB.MainPR.Skill.ShE.Shield.stt,
-                HoldT = DB.MainPR.Skill.Cursor.t_hold
+                HoldT = DB.MainPR.Skill.Cursor.t_hold,
+                Outfit = (int)DB.MainPR.outfit_type
             };
         }
     }

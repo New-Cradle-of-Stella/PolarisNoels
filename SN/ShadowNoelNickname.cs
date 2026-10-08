@@ -279,7 +279,7 @@ namespace PolarisNoels.SN
             {
                 UpdateTextPosition();
             }
-            if (CFGMultiplayer.showNicknames)
+            if (NoelsSettings.ShowNicknames)
             {
                 ShowText();
             }
@@ -290,7 +290,7 @@ namespace PolarisNoels.SN
             if (followTarget is ShadowNoel noel && Tx != null)
             {
                 SetBgColor((Color)DB.partyInfos[noel.PartyID].Color);
-                if (CFGMultiplayer.showDelay && DB.peerDelays.ContainsKey(noel.ID) && !IsMsg)
+                if (NoelsSettings.ShowDelay && DB.peerDelays.ContainsKey(noel.ID) && !IsMsg)
                 {
                     this.Tx.Txt(this.currentText + " - " + DB.peerDelays[noel.ID] + "ms");
                 }
