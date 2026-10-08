@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using Polaris;
+using Polaris.Res;
 using PolarisNoels.DataStruct;
 using XX;
 
@@ -45,50 +46,33 @@ namespace PolarisNoels
 
         static string localPicPath;
 
+        /// <summary>游戏资源目录（StreamingAssets）下放本模组素材的文件夹名；pxls 路径字符串里也用到它。</summary>
+        const string GameResDir = "PolarisNoelsResources";
+
         public static void Load()
         {
             Plugin.Logger.LogInfo("start loading PolarisNoels resources..");
-            string assetPath = Path.GetFullPath(Application.streamingAssetsPath);
-            string assetOriginPath = Path.Combine(assetPath, "PolarisNoelsResources\\");
-            string localPxlPath = Path.Combine(assetOriginPath, "pxls\\");
-            string localPicPath = Path.Combine(assetOriginPath, "pics\\");
-            string pluginFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "BepInEx", "plugins");
-            string pluginPath = Path.Combine(pluginFolderPath, "PolarisNoels");
-            string pluginPxlPath = Path.Combine(pluginPath, "pxls\\");
-            string pluginPicPath = Path.Combine(pluginPath, "pics\\");
-            string pluginResPath = Path.Combine(pluginPath, "resources\\");
-            if (!Directory.Exists(assetOriginPath))
-            {
-                Directory.CreateDirectory(assetOriginPath);
-            }
-            if (!Directory.Exists(localPxlPath))
-            {
-                Directory.CreateDirectory(localPxlPath);
-            }
-            if (!Directory.Exists(localPicPath))
-            {
-                Directory.CreateDirectory(localPicPath);
-            }
-            Plugin.Logger.LogInfo("Directory check success.");
-            foreach (FileInfo file in new DirectoryInfo(pluginPxlPath).EnumerateFiles())
-            {
-                string targetFile = localPxlPath + file.Name;
-                File.Copy(file.FullName, targetFile, true);
-            }
-            foreach (FileInfo file in new DirectoryInfo(pluginPicPath).EnumerateFiles())
-            {
-                string targetFile = localPicPath + file.Name;
-                File.Copy(file.FullName, targetFile, true);
-            }
-            foreach (FileInfo file in new DirectoryInfo(pluginResPath).EnumerateFiles())
-            {
-                string targetFile = assetOriginPath + file.Name;
-                File.Copy(file.FullName, targetFile, true);
-            }
-            // 文案文件交给 Core 直接读，不再拷进游戏的 StreamingAssets。
+
+            // 游戏自己的加载器只认 StreamingAssets，所以素材要摆过去；Core 只复制新增或有变化的文件，不再每次启动全量覆盖。
+            string pluginPath = Path.GetDirectoryName(typeof(MTRExtension).Assembly.Location);
+            ModResources res = ResAPI.For(MyPluginInfo.PLUGIN_GUID, pluginPath);
+            res.MountToGame("pxls", GameResDir + "/pxls");
+            string picDir = res.MountToGame("pics", GameResDir + "/pics");
+            res.MountToGame("resources", GameResDir);
+
+            // 文案文件交给 Core 直接读，不拷进游戏目录。
             PolarisAPI.Localization.AddTextFiles(pluginPath, LOCALIZATION_FILE_NAME);
+
+            if (picDir == null)
+            {
+                Plugin.Logger.LogWarning("PolarisNoels pics folder is missing; preview images will not load.");
+            }
+            else
+            {
+                localPicPath = picDir + Path.DirectorySeparatorChar;
+            }
+
             Plugin.Logger.LogInfo("PolarisNoels resources load complete!");
-            MTRExtension.localPicPath = localPicPath;
         }
 
         public static void LoadAllPxls()
@@ -127,14 +111,14 @@ namespace PolarisNoels
                 int num2 = pxlPath[i].Length;
                 for (int j = 0; j < num2; j++)
                 {
-                    string text = "PolarisNoelsResources/pxls/" + pxlPath[i][j] + ".pxls";
+                    string text = GameResDir + "/pxls/" + pxlPath[i][j] + ".pxls";
                     MTIOneImage mtioneImage;
                     PxlCharacter pxlCharacter = MTRX.loadMtiPxc(out mtioneImage, pxlPath[i][j], text, "_", true, true, true);
                     instance.AddTicketInner(pxlCharacter, mtioneImage, 1);
                 }
             }
             CaneManager.reloadScript(false);
-            return new PrPoseContainer(name, "PolarisNoelsResources/pxls/", "_", delegate (PxlFrame F, float rCLENB)
+            return new PrPoseContainer(name, GameResDir + "/pxls/", "_", delegate (PxlFrame F, float rCLENB)
             {
                 float num3;
                 float num4;
